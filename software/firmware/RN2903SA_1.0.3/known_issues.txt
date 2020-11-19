@@ -1,0 +1,4 @@
+- Radio get rssi command is not supported
+
+- The module does not respond to the multi MAC commands sent by the network after the JoinAccept message.
+

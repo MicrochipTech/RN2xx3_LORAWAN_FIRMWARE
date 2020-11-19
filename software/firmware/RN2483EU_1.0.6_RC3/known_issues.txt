@@ -1,0 +1,7 @@
+- The RN2483 wakes up from sleep and responds "ok", and when the customer sends a tx command "mac tx cnf " he received "ok" but don't gets "mac_tx_ok". 
+After this RN2483 don't gives any answer and blocks in this point.
+
+- The module does not accept the DevStatutsReq command (both: in single command only or in concatenation with other commands).
+
+- Activate implicit header mode not supported
+

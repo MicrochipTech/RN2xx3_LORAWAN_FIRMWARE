@@ -1,0 +1,6 @@
+- Unexpected corrupted data, but only on the first downlink -AND- only when the first downlink was emitted during one of the receive windows of the first uplink. In other words, if the first downlink is sent in one of the receive-windows of the second uplink, all is fine.
+corrupted data means:
+* Unexpected FRMPayload
+* Unexpected FPort
+
+

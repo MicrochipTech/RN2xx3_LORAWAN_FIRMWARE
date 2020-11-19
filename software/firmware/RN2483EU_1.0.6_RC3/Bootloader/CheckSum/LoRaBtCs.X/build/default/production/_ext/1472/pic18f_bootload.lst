@@ -1,0 +1,2723 @@
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ; *****************************************************************************
+                      00002 ;        Software License Agreement                                 
+                      00003 ;                                                                   
+                      00004 ; The software supplied herewith by Microchip Technology            
+                      00005 ; Incorporated (the ?Company?) for its PICmicro? Microcontroller is 
+                      00006 ; intended and supplied to you, the Company?s customer, for use     
+                      00007 ; solely and exclusively on Microchip PICmicro Microcontroller      
+                      00008 ; products. The software is owned by the Company and/or its         
+                      00009 ; supplier, and is protected under applicable copyright laws. All   
+                      00010 ; rights are reserved. Any use in violation of the foregoing         
+                      00011 ; restrictions may subject the user to criminal sanctions under     
+                      00012 ; applicable laws, as well as to civil liability for the breach of  
+                      00013 ; the terms and conditions of this license.                         
+                      00014 ;                                                                   
+                      00015 ; THIS SOFTWARE IS PROVIDED IN AN ?AS IS? CONDITION. NO WARRANTIES, 
+                      00016 ; WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED 
+                      00017 ; TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A       
+                      00018 ; PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT, 
+                      00019 ; IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR        
+                      00020 ; CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.                 
+                      00021 ;                                                                   
+                      00022 ;
+                      00023 ;
+                      00024 ; Memory Map
+                      00025 ;   -----------------
+                      00026 ;   |    0x0000     |
+                      00027 ;   |    0x0002     |   Boot vector
+                      00028 ;   |               |
+                      00029 ;   |               |
+                      00030 ;   |               |
+                      00031 ;   |  Boot Block   |   (this program)
+                      00032 ;   |               |   (PIC18Fxxx Devices)
+                      00033 ;   |    0x0200     |           Re-mapped Reset Vector
+                      00034 ;   |    0x0208     |           Re-mapped High Priority Interrupt Vector
+                      00035 ;   |    0x0218     |           Re-mapped Low Priority Interrupt Vector
+                      00036 ;   |               |
+                      00037 ;   |               |
+                      00038 ;   |  Code Space   |   User program space
+                      00039 ;   |               |
+                      00040 ;   |               |
+                      00041 ;   |               |
+                      00042 ;   |   0xXXXXXX    |
+                      00043 ;   -----------------
+                      00044 ;
+                      00045 ;
+                      00046 ; Incoming data format:
+                      00047 ;
+                      00048 ; [<Command><DataLengthL><DataLengthH> <EE_Key_1><EE_Key_2> <AddressL><AddressH><AddressU><unused><Data(
+                            optional)>]
+                      00049 ;
+                      00050 ; Definitions:
+                      00051 ;
+                      00052 ;   COMMAND    -   Base command
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00053 ;   DataLength -   Length of data associated to the command
+                      00054 ;   Address    -   Address up to 24 bits
+                      00055 ;   Data       -   General data up to 255 bytes
+                      00056 ;
+                      00057 ;
+                      00058 ; Commands:
+                      00059 ;
+                      00060 ;   Read Version  0x00    Read Version Information
+                      00061 ;   Read Flash    0x01    Read Program Memory
+                      00062 ;   Write Flash   0x02    Write Program Memory
+                      00063 ;   Erase Flash   0x03    Erase Program Memory
+                      00064 ;   Read EE Data  0x04    Read EEDATA Memory
+                      00065 ;   Write EE Data 0x05    Write EEDATA Memory
+                      00066 ;   Read Config   0x06    Read Config Memory (NOT supported by PIC16)
+                      00067 ;   Write Config  0x07    Write Config Memory (NOT supported by PIC16)
+                      00068 ;   Checksum      0x08    Calculate 16 bit checksum of specified region of memory
+                      00069 ;   Reset         0x09    Reset Device and run application
+                      00070 ;
+                      00071 ; *****************************************************************************
+                      00072 
+                      00073 #define  RD_VERSION  0x00
+                      00074 #define  RD_FLASH    0x01
+                      00075 #define  WR_FLASH    0x02
+                      00076 #define  ER_FLASH    0x03
+                      00077 #define  RD_EEDATA   0x04
+                      00078 #define  WR_EEDATA   0x05
+                      00079 #define  RD_CONFIG   0x06
+                      00080 #define  WR_CONFIG   0x07
+                      00081 ; *****************************************************************************
+                      00082     #include "p18lf46k22.inc"       ; Standard include
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : Sep 13 2016
+                      00005 ;  MPASM PIC18LF46K22 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2016 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      02796         LIST
+                      00083     #include "PIC18F_hardware_defs.inc"
+                      00001 ;/*****************************************************************************
+                      00002 ;* CODE OWNERSHIP AND DISCLAIMER OF LIABILITY
+                      00003 ;*
+                      00004 ;* Microchip Technology Incorporated ("Microchip") retains all ownership and
+                      00005 ;* intellectual property rights in the code accompanying this message and in
+                      00006 ;* all derivatives hereto.  You may use this code, and any derivatives created
+                      00007 ;* by any person or entity by or on your behalf, exclusively with Microchip?s
+                      00008 ;* proprietary products.  Your acceptance and/or use of this code constitutes
+                      00009 ;* agreement to the terms and conditions of this notice.
+                      00010 ;*
+                      00011 ;* CODE ACCOMPANYING THIS MESSAGE IS SUPPLIED BY MICROCHIP "AS IS".  NO
+                      00012 ;* WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00013 ;* LIMITED TO, IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND
+                      00014 ;* FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS CODE, ITS INTERACTION WITH
+                      00015 ;* MICROCHIP?S PRODUCTS, COMBINATION WITH ANY OTHER PRODUCTS, OR USE IN ANY
+                      00016 ;* APPLICATION.
+                      00017 ;*
+                      00018 ;* YOU ACKNOWLEDGE AND AGREE THAT, IN NO EVENT, SHALL MICROCHIP BE LIABLE,
+                      00019 ;* WHETHER IN CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE OR BREACH OF
+                      00020 ;* STATUTORY DUTY), STRICT LIABILITY, INDEMNITY, CONTRIBUTION, OR OTHERWISE,
+                      00021 ;* FOR ANY INDIRECT, SPECIAL, PUNITIVE, EXEMPLARY, INCIDENTAL OR CONSEQUENTIAL
+                      00022 ;* LOSS, DAMAGE, FOR COST OR EXPENSE OF ANY KIND WHATSOEVER RELATED TO THE
+                      00023 ;* CODE, HOWSOEVER CAUSED, EVEN IF MICROCHIP HAS BEEN ADVISED OF THE
+                      00024 ;* POSSIBILITY OR THE DAMAGES ARE FORESEEABLE.  TO THE FULLEST EXTENT ALLOWABLE
+                      00025 ;* BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN ANY WAY RELATED TO THIS
+                      00026 ;* CODE, SHALL NOT EXCEED THE PRICE YOU PAID DIRECTLY TO MICROCHIP SPECIFICALLY
+                      00027 ;* TO HAVE THIS CODE DEVELOPED.
+                      00028 ;*
+                      00029 ;* You agree that you are solely responsible for testing the code and
+                      00030 ;* determining its suitability.  Microchip has no obligation to modify, test,
+                      00031 ;* certify, or support the code.
+                      00032 ;*
+                      00033 ;* Author                Date        Comment
+                      00034 ;*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      00035 ;* name                  09/11/08    ...
+                      00036 ;******************************************************************************//*
+                      00037 ; * File:   Hardware defs.h
+                      00038 ; * Author: C08156
+                      00039 ; *
+                      00040 ; * Created on September 14, 2012, 4:25 PM
+                      00041 ; */
+                      00042 
+                      00043 #ifndef HARDWARE_DEFS_H
+                      00044 #define HARDWARE_DEFS_H
+                      00045 
+                      00046     
+                      00047 #define  INPUT_PIN   1
+                      00048 #define  OUTPUT_PIN  0
+                      00049 
+                      00050 #define  ANALOG_PIN  1
+                      00051 #define  DIGITAL_PIN 0
+                      00052 
+                      00053 #define  OPEN_DRAIN_ENABLED     1  // Enable Open Drain operation
+                      00054 #define  OPEN_DRAIN_DISABLE     0   // Regular operation
+                      00055 
+                      00056 #define  OSCCON_VALUE   0x73
+                      00057 
+                      00058 
+                      00059 #define  TRIS_BOOTLOADER_INDICATOR   TRISC,TRISC0
+                      00060 #define  BOOTLOADER_INDICATOR        LATC,LATC0
+                      00061 
+                      00062 
+                      00063 #define  UART_RX       PORTC,7
+                      00064 #define  LAT_UART_TX   LATC,6
+                      00065 #define  TRIS_UART_RX  TRISC,TRISC7
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00066 #define  TRIS_UART_TX  TRISC,TRISC6
+                      00067 #define  ANSEL_UART_RX ANSELC,ANSC7
+                      00068 #define  ANSEL_UART_TX ANSELC,ANSC6
+                      00069 
+                      00070 CONFIGURE_IO  macro
+                      00071     bsf     LAT_UART_TX          ; this fixes a phantom 0x80 character during the autobaud process
+                      00072     bsf     TRIS_UART_TX         ; Setup tx pin Data sheet (end of chapter 25.0)
+                      00073     bsf     TRIS_UART_RX         ; Setup rx pin specifies both should be set to 1.
+                      00074     BANKSEL ANSELC   ; if the UART TX & RX pins have analog,
+                      00075     bcf     ANSEL_UART_TX          ; uncomment these lines.
+                      00076     bcf     ANSEL_UART_RX
+                      00077     endm
+                      00078 
+                      00079 
+                      00080 
+                      00081 
+                      00082 #endif
+                      00083 
+                      00084 ; *****************************************************************************
+                      00085     config FOSC = INTIO67   ;// Oscillator Selection bits (Internal oscillator block)
+                      00086     config PLLCFG = OFF      ;// 4X PLL Enable (Oscillator multiplied by 4)
+                      00087     config PRICLKEN = OFF    ;// Primary clock enable bit (Primary clock is always enabled)
+                      00088     config FCMEN = OFF      ;// Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
+                      00089     config IESO = OFF       ;// Internal/External Oscillator Switchover bit (Oscillator Switchover mode 
+                            disabled)
+                      00090 
+                      00091 ;// CONFIG2L
+                      00092     config PWRTEN = OFF     ;// Power-up Timer Enable bit (Power up timer disabled)
+                      00093     config BOREN = NOSLP       ;// Brown-out Reset Enable bits (Brown-out Reset enabled and controlled b
+                            y software (SBOREN is enabled))
+                      00094     config BORV = 190       ;// Brown Out Reset Voltage bits (VBOR set to 2.20 V nominal)
+                      00095 
+                      00096 ;// CONFIG2H
+                      00097     config WDTEN = OFF      ;// Watchdog Timer Enable bits (Watch dog timer is always disabled. SWDTEN h
+                            as no effect.)
+                      00098     config WDTPS = 32768    ;// Watchdog Timer Postscale Select bits (1:32768)
+                      00099 
+                      00100 ;// CONFIG3H
+                      00101     config CCP2MX = PORTC1  ;// CCP2 MUX bit (CCP2 input/output is multiplexed with RC1)
+                      00102     config PBADEN = ON     ;// PORTB A/D Enable bit (PORTB<5:0> pins are configured as digital I/O on Re
+                            set)
+                      00103     config CCP3MX = PORTB5  ;// P3A/CCP3 Mux bit (P3A/CCP3 input/output is multiplexed with RB5)
+                      00104     config HFOFST = ON      ;// HFINTOSC Fast Start-up (HFINTOSC output and ready status are not delayed
+                             by the oscillator stable status)
+                      00105     config T3CMX = PORTC0   ;// Timer3 Clock input mux bit (T3CKI is on RC0)
+                      00106     config P2BMX = PORTD2   ;// ECCP2 B output mux bit (P2B is on RD2)
+                      00107     config MCLRE = EXTMCLR  ;// MCLR Pin Enable bit (MCLR pin enabled, RE3 input pin disabled)
+                      00108 
+                      00109 ;// CONFIG4L
+                      00110     config STVREN = ON      ;// Stack Full/Underflow Reset Enable bit (Stack full/underflow will cause R
+                            eset)
+                      00111     config LVP = ON         ;// Single-Supply ICSP Enable bit (Single-Supply ICSP enabled if MCLRE is al
+                            so 1)
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00112     config XINST = OFF      ;// Extended Instruction Set Enable bit (Instruction set extension and Index
+                            ed Addressing mode disabled (Legacy mode))
+                      00113 
+                      00114 ;// CONFIG5L
+                      00115     config CP0 = ON        ;// Code Protection Block 0 (Block 0 (000800-003FFFh) not code-protected)
+                      00116     config CP1 = ON        ;// Code Protection Block 1 (Block 1 (004000-007FFFh) not code-protected)
+                      00117     config CP2 = ON        ;// Code Protection Block 2 (Block 2 (008000-00BFFFh) not code-protected)
+                      00118     config CP3 = ON        ;// Code Protection Block 3 (Block 3 (00C000-00FFFFh) not code-protected)
+                      00119 
+                      00120 ;// CONFIG5H
+                      00121     config CPB = ON        ;// Boot Block Code Protection bit (Boot block (000000-0007FFh) not code-prot
+                            ected)
+                      00122     config CPD = ON        ;// Data EEPROM Code Protection bit (Data EEPROM not code-protected)
+                      00123 
+                      00124 ;// CONFIG6L
+                      00125     config WRT0 = OFF       ;// Write Protection Block 0 (Block 0 (000800-003FFFh) not write-protected)
+                      00126     config WRT1 = OFF       ;// Write Protection Block 1 (Block 1 (004000-007FFFh) not write-protected)
+                      00127     config WRT2 = OFF       ;// Write Protection Block 2 (Block 2 (008000-00BFFFh) not write-protected)
+                      00128     config WRT3 = OFF       ;// Write Protection Block 3 (Block 3 (00C000-00FFFFh) not write-protected)
+                      00129 
+                      00130 ;// CONFIG6H
+                      00131     config WRTC = OFF       ;// Configuration Register Write Protection bit (Configuration registers (30
+                            0000-3000FFh) not write-protected)
+                      00132     config WRTB = OFF       ;// Boot Block Write Protection bit (Boot Block (000000-0007FFh) not write-p
+                            rotected)
+                      00133     config WRTD = OFF       ;// Data EEPROM Write Protection bit (Data EEPROM not write-protected)
+                      00134 
+                      00135 ;// CONFIG7L
+                      00136     config EBTR0 = OFF      ;// Table Read Protection Block 0 (Block 0 (000800-003FFFh) not protected fr
+                            om table reads executed in other blocks)
+                      00137     config EBTR1 = OFF      ;// Table Read Protection Block 1 (Block 1 (004000-007FFFh) not protected fr
+                            om table reads executed in other blocks)
+                      00138     config EBTR2 = OFF      ;// Table Read Protection Block 2 (Block 2 (008000-00BFFFh) not protected fr
+                            om table reads executed in other blocks)
+                      00139     config EBTR3 = OFF      ;// Table Read Protection Block 3 (Block 3 (00C000-00FFFFh) not protected fr
+                            om table reads executed in other blocks)
+                      00140 
+                      00141 ;// CONFIG7H
+                      00142     config EBTRB = OFF      ;// Boot Block Table Read Protection bit (Boot Block (000000-0007FFh) not pr
+                            otected from table reads executed in other blocks)
+                      00143 
+                      00144 ;        __idlocs _IDLOC0, 0x01
+                      00145 ;        __idlocs _IDLOC1, 0x02
+                      00146 ;        __idlocs _IDLOC2, 0x03
+                      00147 ;        __idlocs _IDLOC3, 0x04
+                      00148 ;        __idlocs _IDLOC4, 0x05
+                      00149 ;        __idlocs _IDLOC5, 0x06
+                      00150 ;        __idlocs _IDLOC6, 0x07
+                      00151 ;        __idlocs _IDLOC7, 0x08
+                      00152 
+                      00153 ;#define  RCSTA  RCSTA1
+                      00154 ;#define  TXSTA  TXSTA1
+                      00155 ;#define  RCREG  RCREG1
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00156 ;#define  TXREG  TXREG1
+                      00157 ;#define  SPBRG  SPBRG1
+                      00158 
+                      00159 ; *****************************************************************************
+                      00160 
+                      00161 #define MAJOR_VERSION   0x01
+                      00162 #define MINOR_VERSION   0x01            ; Version
+                      00163 
+                      00164 
+                      00165 #define STX             0x55
+                      00166 
+  0040                00167  variable  ERASE_FLASH_BLOCKSIZE  =    0x40    ; erase clears 0x40 words at a time
+  0040                00168  variable  WRITE_FLASH_BLOCKSIZE  =    0x40    ; 0x40 write latches.
+  003F                00169  variable  LAST_WORD_MASK = WRITE_FLASH_BLOCKSIZE -1
+                      00170 
+                      00171 ;#define        TBLWT_BUG                       ; Timing bug found in some PIC18Fxx20s
+                      00172 ; *****************************************************************************
+                      00173 
+                      00174 
+                      00175 
+                      00176 ; *****************************************************************************
+                      00177     cblock 0x00
+  00000000            00178 CheckSum_L                  ; Checksum accumulator
+  00000001            00179 CheckSum_H
+  00000002            00180 COUNTER                 ; General counter
+  00000003            00181 ABTIME_L
+  00000004            00182 ABTIME_H
+  00000005            00183 RXDATA
+  00000006            00184 TXDATA
+                      00185     endc
+                      00186 
+                      00187 ; Frame Format
+                      00188 ;
+                      00189 ; [<Command><DataLengthL><DataLengthH> <EE_Key_1><EE_Key_2> <AddressL><AddressH><AddressU><unused><Data(
+                            optional)>]
+                      00190 
+  00000009            00191 DATA_BUFF       equ     0x09            ; Start of receive buffer
+                      00192         
+                      00193     cblock 0x09
+  00000009            00194 COMMAND                         ; Data mapped in receive buffer
+  0000000A            00195 DATA_COUNT_L
+  0000000B            00196 DATA_COUNT_H
+  0000000C            00197 EE_KEY_1
+  0000000D            00198 EE_KEY_2
+  0000000E            00199 ADDRESS_L
+  0000000F            00200 ADDRESS_H
+  00000010            00201 ADDRESS_U
+  00000011            00202 ADDRESS_X
+  00000012            00203 PACKET_DATA:0x40
+                      00204     endc
+                      00205 
+  00000080            00206 FSR_LOG equ 0x80
+                      00207 #define  LOG_W   movwf   POSTINC1
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00208         
+                      00209 ; *****************************************************************************
+                      00210 
+                      00211 
+                      00212 
+                      00213 
+                      00214 ; *****************************************************************************
+                      00215 pmwtpi macro                            ; tblwt*+ macro for PIC18Fxx20 bug
+                      00216  IFDEF TBLWT_BUG
+                      00217         tblwt   *
+                      00218         tblrd   *+
+                      00219  ELSE
+                      00220         tblwt   *+
+                      00221  ENDIF
+                      00222         endm
+                      00223 ; *****************************************************************************
+                      00224 
+                      00225 
+                      00226  
+                      00227 ; *****************************************************************************
+                      00228         ORG     0x0000                  ; Re-map Reset vector
+000000 D???           00229         bra     Setup   
+                      00230 
+                      00231 
+                      00232         ORG     0x0008
+000008                00233 VIntH
+000008 D???           00234         bra     RVIntH                  ; Re-map Interrupt vector
+                      00235 
+                      00236         ORG     0x0018
+000018                00237 VIntL
+000018 D???           00238         bra     RVIntL                  ; Re-map Interrupt vector
+                      00239 ; *****************************************************************************
+                      00240 
+                      00241  
+                      00242 
+                      00243 ; *****************************************************************************
+                      00244 ; Setup the appropriate registers.
+00001A                00245 Setup
+00001A 9094           00246     bcf     TRIS_BOOTLOADER_INDICATOR
+00001C 808B           00247     bsf     BOOTLOADER_INDICATOR
+00001E 0E73           00248     movlw   OSCCON_VALUE     ; clock as specified by config bits.
+000020 6ED3           00249     movwf   OSCCON
+                      00250     ;bsf     OSCTUNE, PLLEN      ; if you get a syntax error on PLLEN, try SPLLEN instead.
+                      00251 
+                      00252 
+000022 6AF8           00253     clrf    TBLPTRU ; Load TBLPTR with the base
+000024 0E??           00254     movlw   high RVReset
+000026 6EF7           00255     movwf   TBLPTRH ; address of the word
+000028 0E??           00256     movlw   low RVReset
+00002A 6EF6           00257     movwf   TBLPTRL
+00002C 0EFC           00258     movlw   high (0x10000 - 0x300 - 2)
+00002E 6E0B           00259     movwf   DATA_COUNT_H
+000030 0EFE           00260     movlw   low  (0x10000 - 0x300 - 2)
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000032 6E0A           00261     movwf   DATA_COUNT_L
+                      00262 
+000034 EC?? F???      00263     call    CalcCheckSum
+000038 0EFE           00264     movlw   low (0x10000 - 2)
+00003A 6EF6           00265     movwf   TBLPTRL
+00003C 0EFF           00266     movlw   high (0x10000 - 2)
+00003E 6EF7           00267     movwf   TBLPTRH
+000040 0009           00268     tblrd   *+                  ; Read low order stored checksum byte
+000042 50F5           00269     movf    TABLAT,w
+000044 1800           00270     xorwf   CheckSum_L,w
+000046 E1??           00271     bnz     CheckSumFail
+000048 0009           00272     tblrd   *+                  ; Read high order stored checksum byte
+00004A 50F5           00273     movf    TABLAT,w
+00004C 1801           00274     xorwf   CheckSum_H,w
+00004E E0??           00275     bz      StartApp            ; if both checksums match, launch the application
+                      00276 
+000050                00277 CheckSumFail                    ; if the checksum fails, run the bootloader
+                      00278 ; *****************************************************************************
+                      00279 
+000050 D???           00280     rcall   InitComms
+                      00281 
+                      00282 
+                      00283 #define  UART_RCIF   PIR1,RC1IF
+                      00284 #define  UART_TXIF   PIR1,TX1IF
+                      00285 
+                      00286 ; *****************************************************************************
+000052                00287 AutoBaud:
+                      00288 ;
+                      00289 ; ___     ___     ___     ___     ___     __________
+                      00290 ;    \_S_/ 1 \_0_/ 1 \_0_/ 1 \_0_/ 1 \_0_/ Stop
+                      00291 ;       |                                |
+                      00292 ;       |-------------- p ---------------|
+                      00293 ;
+                      00294 ;    p = The number of instructions between the first and last
+                      00295 ;        rising edge of the RS232 control sequence 0x55. This is
+                      00296 ;        the code that the hardware autobaud looks for.
+                      00297 ;
+                      00298 ;    SPBRG = (p / 32) - 1    BRGH = 1
+                      00299 ;                                  B0/B1/B2
+                      00300 
+                      00301 ;       bcf     RCSTA1, CREN            ; Stop receiving
+                      00302 ;
+                      00303 ;    movlw   b'00000011'                ; x16 Prescale
+                      00304 ;    movwf   T0CON
+                      00305 ;    clrf    TMR0H                      ; Reset timer
+                      00306 ;    clrf    TMR0L
+                      00307 ;
+                      00308 ;    rcall   WaitForRise
+                      00309 ;
+                      00310 ;    bsf     T0CON, TMR0ON              ; Start counting
+                      00311 ;
+                      00312 ;    rcall   WaitForRise
+                      00313 ;
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00314 ;    bcf     T0CON, TMR0ON              ; Stop counting
+                      00315 ;
+                      00316 ;    movff   TMR0L, ABTIME_L            ; Read the timer
+                      00317 ;
+                      00318 ;DivB32
+                      00319 ;    rrcf    TMR0H, F           ; divide by 2
+                      00320 ;    rrcf    ABTIME_L, F
+                      00321 ;    btfss   STATUS, C          ; Rounding
+                      00322 ;    decf    ABTIME_L, F
+                      00323 ;
+                      00324 ;    movff   ABTIME_L, SPBRG1   ; Sync
+                      00325 ;
+                      00326 ;    bsf     RCSTA1, CREN               ; Start receiving
+000052 0004           00327     clrwdt
+000054 A2AC           00328     btfss   TXSTA,TRMT          ; wait for rest of data to send
+000056 D???           00329     bra     AutoBaud            ; without this the autobaud kills that last character in the buffer
+                      00330 
+000058 80B8           00331     bsf     BAUDCON1,ABDEN
+00005A                00332 WaitForAutoBaud
+00005A A0B8           00333     btfss   BAUDCON1,ABDEN
+00005C D???           00334     bra     AutoBaudComplete
+00005E AEB8           00335     btfss    BAUDCON1,ABDOVF
+000060 D???           00336     bra     WaitForAutoBaud
+000062 90B8           00337     bcf     BAUDCON1,ABDEN
+000064 9EB8           00338     bcf     BAUDCON1,ABDOVF
+000066 D???           00339     bra     AutoBaud
+                      00340 
+000068                00341 AutoBaudComplete
+000068 50AE           00342     movf    RCREG1, W           ; Empty the buffer
+00006A 50AE           00343     movf    RCREG1, W
+                      00344     ;decf    SPBRG1,f
+                      00345 
+                      00346 ; *****************************************************************************
+                      00347 
+                      00348 
+                      00349 ; *****************************************************************************
+                      00350 ; Read and parse the data.
+00006C                00351 StartOfLine
+                      00352 
+00006C EE00 F009      00353     lfsr    0, DATA_BUFF                ; Point to the buffer
+000070 0E09           00354     movlw   9
+000072 6E02           00355     movwf   COUNTER                     ; Reset buffer count
+                      00356 
+000074                00357 GetNextDat
+000074 D???           00358     rcall   RdRS232                     ; Get the data
+000076 5005           00359     movf    RXDATA, W
+000078 6EEE           00360     movwf   POSTINC0            ; Store the data
+                      00361 
+00007A 50E9           00362     movf    FSR0L,w         ;
+00007C 0A0B           00363     xorlw   COMMAND+2       ; have we received the command and data length?
+00007E E1??           00364     bnz     EndGetNextLoop
+                      00365 
+000080 5009           00366     movf    COMMAND,w
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000082 0A02           00367     xorlw   WR_FLASH        ; is it a Write Flash command?
+000084 E0??           00368     bz      AddLength
+                      00369 
+000086 5009           00370     movf    COMMAND,w
+000088 0A05           00371     xorlw   WR_EEDATA
+00008A E0??           00372     bz      AddLength
+                      00373 
+00008C 5009           00374     movf    COMMAND,w
+00008E 0A07           00375     xorlw   WR_CONFIG
+000090 E1??           00376     bnz     EndGetNextLoop
+                      00377 
+000092                00378 AddLength
+000092 500A           00379     movf    DATA_COUNT_L,w
+000094 2602           00380     addwf   COUNTER,f
+                      00381 
+000096                00382 EndGetNextLoop
+000096 2E02           00383     decfsz  COUNTER, F          ; Limit buffer to 256 bytes
+000098 D???           00384     bra     GetNextDat
+                      00385 
+                      00386 ; ***********************************************
+                      00387 
+00009A D???           00388     rcall    ProcessBootBuffer              ; B3
+                      00389 
+                      00390 
+                      00391 
+                      00392 ; ***********************************************
+                      00393 ; Send the data buffer back.
+                      00394 ;
+                      00395 ; <STX>[<DATA>...]
+                      00396 
+00009C                00397 WritePacket
+00009C 6E02           00398     movwf   COUNTER
+                      00399 
+00009E 0E55           00400     movlw   STX                 ; Send start condition
+0000A0 D???           00401     rcall   WrRS232
+                      00402 
+0000A2 EE00 F009      00403     lfsr    FSR0, DATA_BUFF             ; Setup pointer to buffer area
+                      00404 
+0000A6                00405 SendNext                                ; Send DATA
+0000A6 50EE           00406     movf    POSTINC0, W
+0000A8 D???           00407     rcall   WrRS232
+0000AA 2E02           00408     decfsz  COUNTER, F
+0000AC D???           00409     bra     SendNext
+                      00410 
+0000AE D???           00411     bra     AutoBaud
+                      00412 ; *****************************************************************************
+                      00413 
+                      00414 
+                      00415 
+                      00416 
+                      00417 ; *****************************************************************************
+                      00418 ; Write a byte to the serial port.
+                      00419 
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000B0                00420 WrRS232
+0000B0 0004           00421     clrwdt
+                      00422 
+0000B2 A89E           00423     btfss   UART_TXIF           ; Write only if TXREG is ready
+0000B4 D???           00424     bra     WrRS232
+                      00425 
+0000B6 6EAD           00426     movwf   TXREG1                      ; Start sending
+                      00427 
+0000B8 0012           00428     return
+                      00429 ; *****************************************************************************
+                      00430 
+                      00431 
+                      00432 
+                      00433 
+                      00434 ; *****************************************************************************
+0000BA                00435 RdRS232
+0000BA 0004           00436         clrwdt
+                      00437 
+0000BC B2AB           00438         btfsc   RCSTA1, OERR            ; Reset on overun
+0000BE 00FF           00439         reset
+0000C0                00440 ReadWait
+0000C0 AA9E           00441         btfss   UART_RCIF               ; Wait for data from RS232
+0000C2 D???           00442         bra     ReadWait
+                      00443 
+0000C4 50AE           00444         movf    RCREG1, W               ; Save the data
+                      00445 
+0000C6 6E05           00446         movwf   RXDATA
+                      00447 
+0000C8 0012           00448         return
+                      00449 ; *****************************************************************************
+                      00450 
+                      00451 
+                      00452 ; *****************************************************************************
+0000CA                00453 InitComms:                  ; configure the UART for communication
+                      00454     CONFIGURE_IO
+0000CA 8C8B               M     bsf     LAT_UART_TX          ; this fixes a phantom 0x80 character during the autobaud process
+0000CC 8C94               M     bsf     TRIS_UART_TX         ; Setup tx pin Data sheet (end of chapter 25.0)
+0000CE 8E94               M     bsf     TRIS_UART_RX         ; Setup rx pin specifies both should be set to 1.
+0000D0 010F               M     BANKSEL ANSELC   ; if the UART TX & RX pins have analog,
+0000D2 9D3A               M     bcf     ANSEL_UART_TX          ; uncomment these lines.
+0000D4 9F3A               M     bcf     ANSEL_UART_RX
+                      00455 
+0000D6 0E90           00456     movlw   b'10010000'         ; Setup rx and tx
+0000D8 6EAB           00457     movwf   RCSTA1
+0000DA 0E26           00458     movlw   b'00100110'
+0000DC 6EAC           00459     movwf   TXSTA1
+0000DE 0E08           00460     movlw   0x08
+0000E0 6EB8           00461     movwf   BAUDCON1
+0000E2 0012           00462     return
+                      00463 
+                      00464 ; *****************************************************************************
+                      00465 ;       ORG     0x000A
+                      00466 
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00467 ;WaitForRise
+                      00468 ;       btfsc   UART_RX         ; Wait for a falling edge
+                      00469 ;       bra     WaitForRise
+                      00470 ;       clrwdt
+                      00471 ;WtSR   btfss   UART_RX         ; Wait for starting edge
+                      00472 ;       bra     WtSR
+                      00473 ;       return
+                      00474 ; *****************************************************************************
+                      00475 
+                      00476 
+0000E4                00477 StartApp
+0000E4 908B           00478     bcf     BOOTLOADER_INDICATOR
+0000E6 D???           00479     bra     RVReset
+                      00480 
+                      00481 
+                      00482 
+                      00483 
+0000E8                00484 ProcessBootBuffer
+                      00485 ; ***********************************************
+                      00486 ; Pre-setup, common to all commands.
+0000E8                00487 PreSetupRegisters
+0000E8 500E           00488     movf    ADDRESS_L, W                ; Set all possible pointers
+0000EA 6EF6           00489     movwf   TBLPTRL
+0000EC 6EA9           00490     movwf   EEADR
+0000EE 500F           00491     movf    ADDRESS_H, W
+0000F0 6EF7           00492     movwf   TBLPTRH
+                      00493 ;    movwf   EEADRH
+0000F2 C010 FFF8      00494     movff   ADDRESS_U, TBLPTRU
+                      00495 
+0000F6 EE00 F012      00496     lfsr    FSR0, PACKET_DATA
+                      00497 
+0000FA 500A           00498     movf    DATA_COUNT_L, W             ; Setup counter
+0000FC 6E02           00499     movwf   COUNTER
+                      00500 ;    movff   EE_KEY1,EE_KEY_1
+                      00501 ;    movff   EE_KEY2,EE_KEY_2
+                      00502 ; ***********************************************
+                      00503 
+                      00504  
+                      00505 ; ***********************************************
+                      00506 ; Test the command field and sub-command.
+0000FE                00507 CheckCommand
+0000FE 5009           00508     movf    COMMAND, W          ; Test for a valid command
+000100 0809           00509     sublw   .9              ; Only commands 0-9 are valid
+000102 E2??           00510     bc      CommandValid
+000104                00511 CommandError
+000104 0EFF           00512     movlw   0xFF            ; return 0xFF to signal bad command
+000106 6E09           00513     movwf   COMMAND
+000108 0C01           00514     retlw   0x01
+                      00515 
+00010A                00516 CommandValid
+                      00517 ;    clrf    PCLATH                     ; Setup for a calculated jump
+00010A 6AFB           00518     clrf    PCLATU
+                      00519 
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00010C 0E??           00520     movlw   high JumpTableBaseAddress
+00010E 6EFA           00521     movwf   PCLATH
+                      00522 
+000110 4409           00523     rlncf   COMMAND, W          ; Jump
+000112 0F??           00524     addlw   low JumpTableBaseAddress
+000114 B0D8           00525     btfsc   STATUS,C
+000116 2AFA           00526     incf    PCLATH
+000118 6EF9           00527     movwf   PCL
+                      00528 
+00011A                00529 JumpTableBaseAddress
+00011A D???           00530     bra     ReadVersion     ; 0
+                      00531 
+00011C D???           00532     bra     ReadProgMem     ; 1
+00011E D???           00533     bra     WriteProgMem    ; 2
+000120 D???           00534     bra     EraseProgMem    ; 3
+000122 D???           00535     bra     ReadEE          ; 4
+000124 D???           00536     bra     WriteEE         ; 5
+000126 D???           00537     bra     ReadProgMem     ; 6 ReadConfig
+000128 D???           00538     bra     WriteConfig     ; 7
+00012A D???           00539     bra     CalcCheckSum    ; 8
+00012C 00FF           00540     reset   ;bra     ResetDevice     ; 9
+                      00541 ; ***********************************************
+                      00542 
+                      00543 
+                      00544 
+                      00545 ; ***********************************************
+                      00546 ; Commands
+                      00547 ; 
+                      00548 ; In:   [<0x01><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00549 ; OUT:  [<0x01><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><DATA>...]
+                      00550 ; Data returned:<VerL><VerH><MaxPacketSizeL><MaxPacketSizeH><AckPacketSizeL><AckPacketSizeH>..
+                      00551 ;            ...<DeviceIDL><DeviceIDH><0x00><0x00><EraseRowSize><WriteLatches>...
+                      00552 ;            ...<ID1><ID2><ID3><ID4><
+00012E                00553 ReadVersion
+00012E 0E01           00554     movlw   MINOR_VERSION
+000130 6E12           00555     movwf   PACKET_DATA
+000132 0E01           00556     movlw   MAJOR_VERSION
+000134 6E13           00557     movwf   PACKET_DATA + .1
+000136 6A14           00558     clrf    PACKET_DATA + .2   ; Max packet size (not used)
+000138 6A15           00559     clrf    PACKET_DATA + .3
+00013A 6A16           00560     clrf    PACKET_DATA + .4   ; ack packet size (not used)
+00013C 6A17           00561     clrf    PACKET_DATA + .5
+00013E 0E3F           00562     movlw   0x3f            ; point to Device ID (0x3F FF FE)
+000140 6EF8           00563     movwf   TBLPTRU
+000142 0EFF           00564     movlw   0xff            ; point to Device ID (0x3F FF FE)
+000144 6EF7           00565     movwf   TBLPTRH
+000146 0EFE           00566     movlw   0xfe            ; point to Device ID (0x3F FF FE)
+000148 6EF6           00567     movwf   TBLPTRL
+00014A 0009           00568     tblrd   *+                  ; Fill buffer
+00014C CFF5 F018      00569     movff   TABLAT, PACKET_DATA + .6
+000150 0009           00570     tblrd   *+                  ; Fill buffer
+000152 CFF5 F019      00571     movff   TABLAT, PACKET_DATA + .7
+000156 6A1A           00572     clrf    PACKET_DATA + .8   ; Pad to 4 bytes
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000158 6A1B           00573     clrf    PACKET_DATA + .9
+                      00574 
+00015A 0E40           00575     movlw   ERASE_FLASH_BLOCKSIZE
+00015C 6E1C           00576     movwf   PACKET_DATA + .10
+00015E 0E40           00577     movlw   WRITE_FLASH_BLOCKSIZE
+000160 6E1D           00578     movwf   PACKET_DATA + .11
+                      00579 
+000162 0E20           00580     movlw   0x20            ; point to User ID (0x200,000)
+000164 6EF8           00581     movwf   TBLPTRU
+000166 6AF7           00582     clrf    TBLPTRH
+000168 6AF6           00583     clrf    TBLPTRL
+00016A 0009           00584     tblrd   *+                  ; Fill buffer
+00016C CFF5 F01E      00585     movff   TABLAT, PACKET_DATA + .12
+000170 0009           00586     tblrd   *+                  ; Fill buffer
+000172 381E           00587     swapf   PACKET_DATA + .12,w
+000174 10F5           00588     iorwf   TABLAT,w
+000176 6E1E           00589     movwf   PACKET_DATA + .12
+                      00590 
+000178 0009           00591     tblrd   *+                  ; Fill buffer
+00017A CFF5 F01F      00592     movff   TABLAT, PACKET_DATA + .13
+00017E 0009           00593     tblrd   *+                  ; Fill buffer
+000180 381F           00594     swapf   PACKET_DATA + .13,w
+000182 10F5           00595     iorwf   TABLAT,w
+000184 6E1F           00596     movwf   PACKET_DATA + .13
+                      00597 
+000186 0009           00598     tblrd   *+                  ; Fill buffer
+000188 CFF5 F020      00599     movff   TABLAT, PACKET_DATA + .14
+00018C 0009           00600     tblrd   *+                  ; Fill buffer
+00018E 3820           00601     swapf   PACKET_DATA + .14,w
+000190 10F5           00602     iorwf   TABLAT,w
+000192 6E20           00603     movwf   PACKET_DATA + .14
+000194 0009           00604     tblrd   *+                  ; Fill buffer
+000196 CFF5 F021      00605     movff   TABLAT, PACKET_DATA + .15
+00019A 0009           00606     tblrd   *+                  ; Fill buffer
+00019C 3821           00607     swapf   PACKET_DATA + .15,w
+00019E 10F5           00608     iorwf   TABLAT,w
+0001A0 6E21           00609     movwf   PACKET_DATA + .15
+                      00610 
+0001A2 0E19           00611     movlw   .25  ; 9 byte header + 16 data bytes
+0001A4 0012           00612     return
+                      00613 
+                      00614 
+                      00615 ; **************************************************************************************
+                      00616 ; ReadProgMem
+                      00617 ;
+                      00618 ; In:   [<0x01><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00619 ; OUT:  [<0x01><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><DATA>...]
+                      00620 ;
+0001A6                00621 ReadProgMem
+0001A6 0009           00622     tblrd   *+                  ; Fill buffer
+0001A8 CFF5 FFEE      00623     movff   TABLAT, POSTINC0
+                      00624 
+0001AC 2E02           00625     decfsz  COUNTER, F
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0001AE D???           00626     bra     ReadProgMem         ; Not finished then repeat
+                      00627 
+0001B0 500A           00628     movf    DATA_COUNT_L, W             ; Setup packet length
+0001B2 0F09           00629     addlw   0x09
+                      00630                                 
+0001B4 0012           00631     return
+                      00632 
+                      00633 ; **************************************************************************************
+                      00634 ; WriteProgMem
+                      00635 ;
+                      00636 ; In:   [<0x02><DataLengthL><DataLengthH> <0x55><0xAA> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00637 ; OUT:  [<0x02><DataLengthL><DataLengthH> <0x00><0x00> <ADDRL><ADDRH><ADDRU><unused><ACK>]
+                      00638 ; Data Length is the length of bytes (2x the number of words)
+0001B6                00639 WriteProgMem
+                      00640  
+                      00641 
+0001B6                00642 Lp1
+0001B6 CFEE FFF5      00643         movff   POSTINC0, TABLAT        ; Load the holding registers
+                      00644 
+                      00645     pmwtpi                              ; Same as tblwt *+
+                          M  IFDEF TBLWT_BUG
+                          M         tblwt   *
+                          M         tblrd   *+
+                          M  ELSE
+0001BA 000D               M         tblwt   *+
+                          M  ENDIF
+                      00646 
+0001BC 4E02           00647     dcfsnz  COUNTER,f
+0001BE D???           00648     bra     StartFlashWrite
+                      00649 
+0001C0 50F6           00650     movf    TBLPTRL,w
+0001C2 0B3F           00651     andlw   WRITE_FLASH_BLOCKSIZE-1
+0001C4 E1??           00652     bnz     Lp1
+                      00653 
+                      00654 
+0001C6                00655 StartFlashWrite
+0001C6 000A           00656     tblrd   *-                  ; Point back into the block
+                      00657 
+0001C8 0E84           00658     movlw   b'10000100'         ; Setup writes
+0001CA 6EA6           00659     movwf   EECON1
+0001CC D???           00660     rcall   StartWrite          ; Write the data
+                      00661 
+0001CE 0009           00662     tblrd   *+                  ; Point to the beginning of the next block
+                      00663 
+0001D0 5202           00664     movf    COUNTER, f
+0001D2 E1??           00665     bnz     WriteProgMem
+                      00666 
+0001D4 D???           00667     bra     SendAcknowledge             ; Send acknowledge
+                      00668 
+                      00669 ; **************************************************************************************
+                      00670 ; EraseProgMem
+                      00671 ;
+                      00672 ; In:   [<0x03><EraseRowsL><EraseRowsH> <0x55><0xAA> <ADDRL><ADDRH><ADDRU><unused>...]
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00673 ; OUT:  [<0x03><EraseRowsL><EraseRowsH> <0x55><0xAA> <ADDRL><ADDRH><ADDRU><unused><ACK>]
+0001D6                00674 EraseProgMem
+0001D6 0E94           00675         movlw   b'10010100'             ; Setup writes
+0001D8 6EA6           00676         movwf   EECON1
+                      00677 
+0001DA D???           00678         rcall   StartWrite              ; Erase the row
+                      00679 
+0001DC 0E40           00680         movlw   ERASE_FLASH_BLOCKSIZE                   ; Point to next row
+0001DE 26F6           00681         addwf   TBLPTRL, F
+0001E0 6AE8           00682         clrf    WREG
+0001E2 22F7           00683         addwfc  TBLPTRH, F
+0001E4 22F8           00684         addwfc  TBLPTRU, F
+                      00685 
+0001E6 2E02           00686         decfsz  COUNTER, F
+0001E8 D???           00687         bra     EraseProgMem    
+                      00688 
+0001EA D???           00689         bra     SendAcknowledge         ; Send acknowledge
+                      00690 
+                      00691 ; **************************************************************************************
+                      00692 ; ReadEE
+                      00693 ;
+                      00694 ; In:   [<0x04><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00695 ; OUT:  [<0x04><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><DATA>...]
+                      00696 ;
+0001EC                00697 ReadEE
+0001EC 6AA6           00698     clrf        EECON1
+                      00699 
+0001EE 80A6           00700     bsf EECON1, RD              ; Read the data
+0001F0 CFA8 FFEE      00701     movff       EEDATA, POSTINC0
+                      00702 ;    infsnz     EEADR, F                ; Adjust EEDATA pointer
+                      00703 ;    incf   EEADRH, F
+0001F4 2AA9           00704     incf    EEADR, F
+                      00705 
+0001F6 2E02           00706         decfsz  COUNTER, F
+0001F8 D???           00707         bra     ReadEE                  ; Not finished then repeat
+                      00708 
+0001FA 500A           00709         movf    DATA_COUNT_L, W         ; Setup packet length
+0001FC 0F09           00710         addlw   0x09
+                      00711                                 
+0001FE 0012           00712         return
+                      00713 
+                      00714 
+                      00715 ; **************************************************************************************
+                      00716 ; WriteEE
+                      00717 ;
+                      00718 ; In:   [<0x04><DataLengthL><DataLengthH> <0x55><0xAA> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00719 ; OUT:  [<0x04><DataLengthL><DataLengthH> <0x00><0x00> <ADDRL><ADDRH><ADDRU><unused><DATA>...]
+                      00720 ;
+000200                00721 WriteEE 
+000200 CFEE FFA8      00722         movff   POSTINC0, EEDATA
+                      00723 
+000204 0E04           00724         movlw   b'00000100'             ; Setup for EEData
+000206 6EA6           00725         movwf   EECON1
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 17
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000208 D???           00726         rcall   StartWrite              
+00020A B2A6           00727         btfsc   EECON1, WR              ; Write and wait
+00020C D???           00728         bra     $ - 2
+                      00729 
+00020E 2AA9           00730     incf    EEADR,f
+                      00731 ;       infsnz  EEADR, F                ; Adjust EEDATA pointer
+                      00732 ;       incf    EEADRH, F
+                      00733 
+000210 2E02           00734         decfsz  COUNTER, F
+000212 D???           00735         bra     WriteEE                 ; Not finished then repeat
+000214 D???           00736         bra     SendAcknowledge         ; Send acknowledge
+                      00737 
+                      00738 ; **************************************************************************************
+                      00739 ; ReadConfigWords
+                      00740 ;   Read config words is no different than read flash so that code supports this command as well.
+                      00741 ; In:   [<0x06><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00742 ; OUT:  [<0x06><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><CONFIG1L><CONFI
+                            G1H><CONFIG2L><CONFIG2H>]
+                      00743 ;ReadConfig
+                      00744 ;       movlw   b'11000000'
+                      00745 ;       movwf   EECON1
+                      00746 ;
+                      00747 ;Lp5
+                      00748 ;    tblrd      *+
+                      00749 ;       movff   TABLAT, POSTINC0
+                      00750 ;
+                      00751 ;       decfsz  COUNTER, F
+                      00752 ;       bra     Lp5                     ; Not finished then repeat
+                      00753 ;
+                      00754 ;       movf    DATA_COUNT_L, W         ; Setup packet length
+                      00755 ;       addlw   0x09
+                      00756 ;
+                      00757 ;       return
+                      00758 
+                      00759 ; **************************************************************************************
+                      00760 ; WriteConfigWords
+                      00761 ;
+                      00762 ; In:   [<0x07><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00763 ; OUT:  [<0x07><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><CONFIG word dat
+                            a>
+                      00764 ;
+000216                00765 WriteConfig
+000216 0EC4           00766         movlw   b'11000100'
+000218 6EA6           00767         movwf   EECON1
+                      00768 
+00021A CFEE FFF5      00769         movff   POSTINC0, TABLAT        ; Write to config area
+00021E 000C           00770         tblwt   *
+                      00771 
+000220 D???           00772         rcall   StartWrite
+                      00773 
+000222 0009           00774         tblrd   *+
+                      00775 
+000224 2E02           00776         decfsz  COUNTER, F
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000226 D???           00777         bra     WriteConfig             ; Not finished then repeat
+                      00778         
+000228 D???           00779         bra     SendAcknowledge         ; Send acknowledge
+                      00780 ;************************************************
+                      00781 
+                      00782 
+                      00783 ; **************************************************************************************
+                      00784 ; CalcChecksum
+                      00785 ;
+                      00786 ; In:   [<0x08><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused>...]
+                      00787 ; OUT:  [<0x08><DataLengthL><DataLengthH> <unused><unused> <ADDRL><ADDRH><ADDRU><unused><ChecksumL><Chec
+                            ksumH>]
+                      00788 ;
+00022A                00789 CalcCheckSum
+00022A 6A00           00790     clrf    CheckSum_L
+00022C 6A01           00791     clrf    CheckSum_H
+00022E 900A           00792     bcf     DATA_COUNT_L,0  ; force count to be an even number
+000230 520A           00793     movf    DATA_COUNT_L,f
+000232 A4D8           00794     btfss   STATUS,Z
+000234 2A0B           00795     incf    DATA_COUNT_H,f  ; bump high order byte
+                      00796 
+000236                00797 CheckSumLoop
+000236 0009           00798     tblrd   *+                  ; Fill buffer
+000238 50F5           00799     movf    TABLAT,w
+00023A 2600           00800     addwf   CheckSum_L,f
+                      00801 
+00023C 0009           00802     tblrd   *+                  ; Fill buffer
+00023E 50F5           00803     movf    TABLAT,w
+000240 2201           00804     addwfc  CheckSum_H,f
+                      00805 
+000242 0E02           00806     movlw   2
+000244 5E0A           00807     subwf   DATA_COUNT_L,f
+000246 E1??           00808     bnz     CheckSumLoop
+000248 2E0B           00809     decfsz  DATA_COUNT_H,f
+                      00810 
+00024A D???           00811     bra     CheckSumLoop                ; Not finished then repeat
+                      00812 
+00024C C000 FFEE      00813     movff   CheckSum_L,POSTINC0
+000250 C001 FFEE      00814     movff   CheckSum_H,POSTINC0
+000254 0E0B           00815     movlw   .11
+000256 0012           00816     return
+                      00817 
+                      00818 
+                      00819 
+000258                00820 SendAcknowledge
+000258 0E01           00821     movlw   0x01
+00025A 6E12           00822     movwf   PACKET_DATA
+00025C 0E0A           00823         movlw   .10                     ; Send acknowledge
+00025E 0012           00824     return
+                      00825 
+                      00826 
+                      00827 
+                      00828 
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00829 ; *****************************************************************************
+                      00830 ; Unlock and start the write or erase sequence.
+                      00831 
+000260                00832 StartWrite
+000260 0004           00833         clrwdt
+                      00834 
+000262 500C           00835         movf    EE_KEY_1,w                      ; Unlock
+000264 6EA7           00836         movwf   EECON2
+000266 500D           00837         movf    EE_KEY_2,w
+000268 6EA7           00838         movwf   EECON2
+00026A 82A6           00839         bsf     EECON1, WR              ; Start the write
+00026C 0000           00840         nop
+                      00841 
+00026E 0012           00842         return
+                      00843 ; *****************************************************************************
+                      00844 
+                      00845 
+                      00846 
+                      00847 
+                      00848 
+                      00849 
+                      00850 
+                      00851 
+                      00852 ; *****************************************************************************
+                      00853         ORG     0x300
+000300                00854 RVReset                                 
+                      00855 
+                      00856         ORG     0x308
+000308                00857 RVIntH
+                      00858 
+                      00859         ORG     0x318
+000318                00860 RVIntL
+                      00861 ; *****************************************************************************
+                      00862 
+                      00863 
+                      00864         END
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ABTIME_H                          00000004
+ABTIME_L                          00000003
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ADCMD                             00000000
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADDEN1                            00000003
+ADDEN2                            00000003
+ADDRESS_H                         0000000F
+ADDRESS_L                         0000000E
+ADDRESS_U                         00000010
+ADDRESS_X                         00000011
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AHEN                              00000001
+AN0                               00000000
+AN1                               00000001
+AN10                              00000001
+AN11                              00000004
+AN12                              00000000
+AN13                              00000005
+AN14                              00000002
+AN15                              00000003
+AN16                              00000004
+AN17                              00000005
+AN18                              00000006
+AN19                              00000007
+AN2                               00000002
+AN20                              00000000
+AN21                              00000001
+AN22                              00000002
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+AN23                              00000003
+AN24                              00000004
+AN25                              00000005
+AN26                              00000006
+AN27                              00000007
+AN3                               00000003
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+AN8                               00000002
+AN9                               00000003
+ANALOG_PIN                        1
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA3                             00000003
+ANSA5                             00000005
+ANSB0                             00000000
+ANSB1                             00000001
+ANSB2                             00000002
+ANSB3                             00000003
+ANSB4                             00000004
+ANSB5                             00000005
+ANSC2                             00000002
+ANSC3                             00000003
+ANSC4                             00000004
+ANSC5                             00000005
+ANSC6                             00000006
+ANSC7                             00000007
+ANSD0                             00000000
+ANSD1                             00000001
+ANSD2                             00000002
+ANSD3                             00000003
+ANSD4                             00000004
+ANSD5                             00000005
+ANSD6                             00000006
+ANSD7                             00000007
+ANSE0                             00000000
+ANSE1                             00000001
+ANSE2                             00000002
+ANSELA                            00000F38
+ANSELB                            00000F39
+ANSELC                            00000F3A
+ANSELD                            00000F3B
+ANSELE                            00000F3C
+ANSEL_UART_RX                     ANSELC,ANSC7
+ANSEL_UART_TX                     ANSELC,ANSC6
+AddLength                         00000092
+AutoBaud                          00000052
+AutoBaudComplete                  00000068
+BANKED                            00000001
+BAUD1CON                          00000FB8
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BAUD2CON                          00000F70
+BAUDCON                           00000FB8
+BAUDCON1                          00000FB8
+BAUDCON2                          00000F70
+BAUDCTL                           00000FB8
+BCL1IE                            00000003
+BCL1IF                            00000003
+BCL1IP                            00000003
+BCL2IE                            00000006
+BCL2IF                            00000006
+BCL2IP                            00000006
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BGVST                             00000006
+BOEN                              00000004
+BOOTLOADER_INDICATOR              LATC,LATC0
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BRGH1                             00000002
+BRGH2                             00000002
+BSR                               00000FE0
+C                                 00000000
+C12IN0M                           00000000
+C12IN0N                           00000000
+C12IN1M                           00000001
+C12IN1N                           00000001
+C12IN2M                           00000003
+C12IN2N                           00000003
+C12IN3M                           00000001
+C12IN3N                           00000001
+C1CH0                             00000000
+C1CH1                             00000001
+C1HYS                             00000003
+C1IE                              00000006
+C1IF                              00000006
+C1INP                             00000003
+C1IP                              00000006
+C1OE                              00000005
+C1ON                              00000007
+C1OUT_CM1CON                      00000006
+C1OUT_CM1CON0                     00000006
+C1OUT_PORTA                       00000004
+C1POL                             00000004
+C1R                               00000002
+C1RSEL                            00000005
+C1SP                              00000003
+C1SYNC                            00000001
+C1TSEL0                           00000000
+C1TSEL1                           00000001
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C2CH0                             00000000
+C2CH1                             00000001
+C2HYS                             00000002
+C2IE                              00000005
+C2IF                              00000005
+C2INP                             00000002
+C2IP                              00000005
+C2OE                              00000005
+C2ON                              00000007
+C2OUT_CM2CON                      00000006
+C2OUT_CM2CON0                     00000006
+C2OUT_PORTA                       00000005
+C2POL                             00000004
+C2R                               00000002
+C2RSEL                            00000004
+C2SP                              00000003
+C2SYNC                            00000000
+C2TSEL0                           00000003
+C2TSEL1                           00000004
+C3TSEL0                           00000006
+C3TSEL1                           00000007
+C4TSEL0                           00000000
+C4TSEL1                           00000001
+C5TSEL0                           00000002
+C5TSEL1                           00000003
+CCP1                              00000002
+CCP1AS0                           00000004
+CCP1AS1                           00000005
+CCP1AS2                           00000006
+CCP1ASE                           00000007
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1MD                            00000000
+CCP2AS                            00000F64
+CCP2AS0                           00000004
+CCP2AS1                           00000005
+CCP2AS2                           00000006
+CCP2ASE                           00000007
+CCP2CON                           00000F66
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2MD                            00000001
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 24
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCP2_PORTB                        00000003
+CCP2_PORTC                        00000001
+CCP3AS                            00000F5B
+CCP3AS0                           00000004
+CCP3AS1                           00000005
+CCP3AS2                           00000006
+CCP3ASE                           00000007
+CCP3CON                           00000F5D
+CCP3IE                            00000000
+CCP3IF                            00000000
+CCP3IP                            00000000
+CCP3M0                            00000000
+CCP3M1                            00000001
+CCP3M2                            00000002
+CCP3M3                            00000003
+CCP3MD                            00000002
+CCP3_PORTB                        00000005
+CCP3_PORTE                        00000000
+CCP4                              00000001
+CCP4CON                           00000F57
+CCP4IE                            00000001
+CCP4IF                            00000001
+CCP4IP                            00000001
+CCP4M0                            00000000
+CCP4M1                            00000001
+CCP4M2                            00000002
+CCP4M3                            00000003
+CCP4MD                            00000003
+CCP5                              00000002
+CCP5CON                           00000F54
+CCP5IE                            00000002
+CCP5IF                            00000002
+CCP5IP                            00000002
+CCP5M0                            00000000
+CCP5M1                            00000001
+CCP5M2                            00000002
+CCP5M3                            00000003
+CCP5MD                            00000004
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000F67
+CCPR2H                            00000F68
+CCPR2L                            00000F67
+CCPR3                             00000F5E
+CCPR3H                            00000F5F
+CCPR3L                            00000F5E
+CCPR4                             00000F58
+CCPR4H                            00000F59
+CCPR4L                            00000F58
+CCPR5                             00000F55
+CCPR5H                            00000F56
+CCPR5L                            00000F55
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 25
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCPTMRS0                          00000F49
+CCPTMRS1                          00000F48
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CHS4                              00000006
+CK                                00000006
+CK1                               00000006
+CK2                               00000006
+CKE                               00000006
+CKP                               00000004
+CKTXP                             00000004
+CM12CON                           00000F77
+CM1CON                            00000F79
+CM1CON0                           00000F79
+CM2CON                            00000F78
+CM2CON0                           00000F78
+CM2CON1                           00000F77
+CMP1MD                            00000001
+CMP2MD                            00000002
+COMMAND                           00000009
+CONFIGURE_IO                      
+COUNTER                           00000002
+CREN                              00000004
+CREN1                             00000004
+CREN2                             00000004
+CSRC                              00000007
+CSRC1                             00000007
+CSRC2                             00000007
+CTED1                             00000002
+CTED2                             00000003
+CTMUCON0                          00000F45
+CTMUCON1                          00000F44
+CTMUCONH                          00000F45
+CTMUCONL                          00000F44
+CTMUEN                            00000007
+CTMUICON                          00000F43
+CTMUICONH                         00000F43
+CTMUIE                            00000003
+CTMUIF                            00000003
+CTMUIP                            00000003
+CTMUMD                            00000003
+CTMUSIDL                          00000005
+CTPLS                             00000002
+CTTRIG                            00000000
+CVREF                             00000002
+CalcCheckSum                      0000022A
+CheckCommand                      000000FE
+CheckSumFail                      00000050
+CheckSumLoop                      00000236
+CheckSum_H                        00000001
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 26
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CheckSum_L                        00000000
+CommandError                      00000104
+CommandValid                      0000010A
+D                                 00000005
+DACCON0                           00000F41
+DACCON1                           00000F40
+DACEN                             00000007
+DACLPS                            00000006
+DACNSS                            00000000
+DACOE                             00000005
+DACOUT                            00000002
+DACPSS0                           00000002
+DACPSS1                           00000003
+DACR0                             00000000
+DACR1                             00000001
+DACR2                             00000002
+DACR3                             00000003
+DACR4                             00000004
+DATA_BUFF                         00000009
+DATA_COUNT_H                      0000000B
+DATA_COUNT_L                      0000000A
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DC3B0                             00000004
+DC3B1                             00000005
+DC4B0                             00000004
+DC4B1                             00000005
+DC5B0                             00000004
+DC5B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DHEN                              00000000
+DIGITAL_PIN                       0
+DONE                              00000001
+DT1                               00000007
+DT2                               00000007
+DTRXP                             00000005
+D_A                               00000005
+D_NOT_A                           00000005
+ECCP1AS                           00000FB6
+ECCP2AS                           00000F64
+ECCP3AS                           00000F5B
+ECCPAS                            00000FB6
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+EDG1POL                           00000004
+EDG1SEL0                          00000002
+EDG1SEL1                          00000003
+EDG1STAT                          00000000
+EDG2POL                           00000007
+EDG2SEL0                          00000005
+EDG2SEL1                          00000006
+EDG2STAT                          00000001
+EDGEN                             00000003
+EDGSEQEN                          00000002
+EEADR                             00000FA9
+EEADR0                            00000000
+EEADR1                            00000001
+EEADR2                            00000002
+EEADR3                            00000003
+EEADR4                            00000004
+EEADR5                            00000005
+EEADR6                            00000006
+EEADR7                            00000007
+EEADR8                            00000000
+EEADR9                            00000001
+EEADRH                            00000FAA
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+EE_KEY_1                          0000000C
+EE_KEY_2                          0000000D
+ERASE_FLASH_BLOCKSIZE             00000040
+ER_FLASH                          0x03
+EndGetNextLoop                    00000096
+EraseProgMem                      000001D6
+FAST                              00000001
+FERR                              00000002
+FERR1                             00000002
+FERR2                             00000002
+FLT0                              00000000
+FREE                              00000004
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+FSR_LOG                           00000080
+FVRCON                            00000F42
+FVREN                             00000007
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+FVRS0                             00000004
+FVRS1                             00000005
+FVRST                             00000006
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GIE_GIEH                          00000007
+GO                                00000001
+GO_DONE                           00000001
+GO_NOT_DONE                       00000001
+GetNextDat                        00000074
+HARDWARE_DEFS_H                   
+HFIOFS                            00000002
+HLVDCON                           00000F9C
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+IDISSEN                           00000001
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INPUT_PIN                         1
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOCB                              00000F62
+IOCB4                             00000004
+IOCB5                             00000005
+IOCB6                             00000006
+IOCB7                             00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IPR3                              00000FA5
+IPR4                              00000F7C
+IPR5                              00000F7F
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRNG0                             00000000
+IRNG1                             00000001
+IRVST                             00000005
+ITRIM0                            00000002
+ITRIM1                            00000003
+ITRIM2                            00000004
+ITRIM3                            00000005
+ITRIM4                            00000006
+ITRIM5                            00000007
+IVRST                             00000005
+InitComms                         000000CA
+JumpTableBaseAddress              0000011A
+KBI0                              00000004
+KBI1                              00000005
+KBI2                              00000006
+KBI3                              00000007
+LAST_WORD_MASK                    0000003F
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATA7                             00000007
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC3                             00000003
+LATC4                             00000004
+LATC5                             00000005
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LAT_UART_TX                       LATC,6
+LFIOFS                            00000000
+LOG_W                             movwf   POSTINC1
+LVDCON                            00000F9C
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+Lp1                               000001B6
+MAJOR_VERSION                     0x01
+MC1OUT                            00000007
+MC2OUT                            00000006
+MCLR                              00000003
+MFIOFS                            00000001
+MFIOSEL                           00000004
+MINOR_VERSION                     0x01
+MSK0                              00000000
+MSK1                              00000001
+MSK2                              00000002
+MSK3                              00000003
+MSK4                              00000004
+MSK5                              00000005
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+MSK6                              00000006
+MSK7                              00000007
+MSSP1MD                           00000006
+MSSP2MD                           00000007
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_SS                            00000005
+NOT_SS1                           00000005
+NOT_SS2                           00000003
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_T5SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+NVCFG0                            00000000
+NVCFG1                            00000001
+OERR                              00000001
+OERR1                             00000001
+OERR2                             00000001
+OPEN_DRAIN_DISABLE                0   // Regular operation
+OPEN_DRAIN_ENABLED                1  // Enable Open Drain operation
+OSCCON                            00000FD3
+OSCCON2                           00000FD2
+OSCCON_VALUE                      0x73
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OUTPUT_PIN                        0
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+P1B                               00000005
+P1C                               00000006
+P1D                               00000007
+P1DC0                             00000000
+P1DC1                             00000001
+P1DC2                             00000002
+P1DC3                             00000003
+P1DC4                             00000004
+P1DC5                             00000005
+P1DC6                             00000006
+P1M0                              00000006
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+P1M1                              00000007
+P1RSEN                            00000007
+P1SSAC0                           00000002
+P1SSAC1                           00000003
+P1SSBD0                           00000000
+P1SSBD1                           00000001
+P2A_PORTB                         00000003
+P2A_PORTC                         00000001
+P2B_PORTC                         00000000
+P2B_PORTD                         00000002
+P2C                               00000003
+P2D                               00000004
+P2DC0                             00000000
+P2DC1                             00000001
+P2DC2                             00000002
+P2DC3                             00000003
+P2DC4                             00000004
+P2DC5                             00000005
+P2DC6                             00000006
+P2M0                              00000006
+P2M1                              00000007
+P2RSEN                            00000007
+P2SSAC0                           00000002
+P2SSAC1                           00000003
+P2SSBD0                           00000000
+P2SSBD1                           00000001
+P3A_PORTB                         00000005
+P3A_PORTE                         00000000
+P3B                               00000001
+P3DC0                             00000000
+P3DC1                             00000001
+P3DC2                             00000002
+P3DC3                             00000003
+P3DC4                             00000004
+P3DC5                             00000005
+P3DC6                             00000006
+P3M0                              00000006
+P3M1                              00000007
+P3RSEN                            00000007
+P3SSAC0                           00000002
+P3SSAC1                           00000003
+P3SSBD0                           00000000
+P3SSBD1                           00000001
+PACKET_DATA                       00000012
+PC                                00000FF9
+PCIE                              00000006
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEIE_GIEL                         00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIE3                              00000FA3
+PIE4                              00000F7A
+PIE5                              00000F7D
+PIR1                              00000F9E
+PIR2                              00000FA1
+PIR3                              00000FA4
+PIR4                              00000F7B
+PIR5                              00000F7E
+PLLEN                             00000006
+PLLRDY                            00000007
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+PMD0                              00000F3F
+PMD1                              00000F3E
+PMD2                              00000F3D
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FBB
+PR4                               00000F52
+PR6                               00000F4B
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PRISD                             00000002
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSS1AC0                           00000002
+PSS1AC1                           00000003
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 34
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PSS1BD0                           00000000
+PSS1BD1                           00000001
+PSS2AC0                           00000002
+PSS2AC1                           00000003
+PSS2BD0                           00000000
+PSS2BD1                           00000001
+PSS3AC0                           00000002
+PSS3AC1                           00000003
+PSS3BD0                           00000000
+PSS3BD1                           00000001
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+PSTR1CON                          00000FB9
+PSTR2CON                          00000F63
+PSTR3CON                          00000F5A
+PSTRCON                           00000FB9
+PVCFG0                            00000002
+PVCFG1                            00000003
+PWM1CON                           00000FB7
+PWM2CON                           00000F65
+PWM3CON                           00000F5C
+PWMCON                            00000FB7
+PreSetupRegisters                 000000E8
+ProcessBootBuffer                 000000E8
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RA7                               00000007
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC1IE                             00000005
+RC1IF                             00000005
+RC1IP                             00000005
+RC1REG                            00000FAE
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 35
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RC1STA                            00000FAB
+RC2                               00000002
+RC2IE                             00000005
+RC2IF                             00000005
+RC2IP                             00000005
+RC2REG                            00000F74
+RC2STA                            00000F71
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCON                              00000FD0
+RCREG                             00000FAE
+RCREG1                            00000FAE
+RCREG2                            00000F74
+RCSTA                             00000FAB
+RCSTA1                            00000FAB
+RCSTA2                            00000F71
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000001
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RD_CONFIG                         0x06
+RD_EEDATA                         0x04
+RD_FLASH                          0x01
+RD_VERSION                        0x00
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+RI                                00000004
+RSEN                              00000001
+RVIntH                            00000308
+RVIntL                            00000318
+RVReset                           00000300
+RX                                00000007
+RX1                               00000007
+RX2                               00000007
+RX9                               00000006
+RX91                              00000006
+RX92                              00000006
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 36
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RX9D                              00000000
+RX9D1                             00000000
+RX9D2                             00000000
+RXDATA                            00000005
+R_NOT_W                           00000002
+R_W                               00000002
+RdRS232                           000000BA
+ReadEE                            000001EC
+ReadProgMem                       000001A6
+ReadVersion                       0000012E
+ReadWait                          000000C0
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000006
+SCIE                              00000005
+SCK                               00000003
+SCK1                              00000003
+SCK2                              00000000
+SCKP                              00000004
+SCL                               00000003
+SCL1                              00000003
+SCL2                              00000000
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000004
+SDA1                              00000004
+SDA2                              00000001
+SDAHT                             00000003
+SDI                               00000004
+SDI1                              00000004
+SDI2                              00000001
+SDO                               00000005
+SDO1                              00000005
+SDO2                              00000004
+SEN                               00000000
+SENDB                             00000003
+SENDB1                            00000003
+SENDB2                            00000003
+SLRA                              00000000
+SLRB                              00000001
+SLRC                              00000002
+SLRCON                            00000F60
+SLRD                              00000003
+SLRE                              00000004
+SMP                               00000007
+SOSCGO                            00000003
+SOSCRUN                           00000006
+SP0                               00000000
+SP1                               00000001
+SP1BRG                            00000FAF
+SP1BRGH                           00000FB0
+SP2                               00000002
+SP2BRG                            00000F75
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 37
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SP2BRGH                           00000F76
+SP3                               00000003
+SP4                               00000004
+SPBRG                             00000FAF
+SPBRG1                            00000FAF
+SPBRG2                            00000F75
+SPBRGH                            00000FB0
+SPBRGH1                           00000FB0
+SPBRGH2                           00000F76
+SPEN                              00000007
+SPEN1                             00000007
+SPEN2                             00000007
+SRCLK0                            00000004
+SRCLK1                            00000005
+SRCLK2                            00000006
+SRCON0                            00000F47
+SRCON1                            00000F46
+SREN                              00000005
+SREN1                             00000005
+SREN2                             00000005
+SRI                               00000000
+SRLEN                             00000007
+SRNQ                              00000005
+SRNQEN                            00000002
+SRPR                              00000000
+SRPS                              00000001
+SRQ                               00000004
+SRQEN                             00000003
+SRRC1E                            00000000
+SRRC2E                            00000001
+SRRCKE                            00000002
+SRRPE                             00000003
+SRSC1E                            00000004
+SRSC2E                            00000005
+SRSCKE                            00000006
+SRSPE                             00000007
+SS                                00000005
+SS1                               00000005
+SS2                               00000003
+SSP1ADD                           00000FC8
+SSP1BUF                           00000FC9
+SSP1CON1                          00000FC6
+SSP1CON2                          00000FC5
+SSP1CON3                          00000FCB
+SSP1IE                            00000003
+SSP1IF                            00000003
+SSP1IP                            00000003
+SSP1MSK                           00000FCA
+SSP1STAT                          00000FC7
+SSP2ADD                           00000F6E
+SSP2BUF                           00000F6F
+SSP2CON1                          00000F6C
+SSP2CON2                          00000F6B
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 38
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SSP2CON3                          00000F69
+SSP2IE                            00000007
+SSP2IF                            00000007
+SSP2IP                            00000007
+SSP2MSK                           00000F6A
+SSP2STAT                          00000F6D
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPCON3                           00000FCB
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000FCA
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+STR1A                             00000000
+STR1B                             00000001
+STR1C                             00000002
+STR1D                             00000003
+STR1SYNC                          00000004
+STR2A                             00000000
+STR2B                             00000001
+STR2C                             00000002
+STR2D                             00000003
+STR2SYNC                          00000004
+STR3A                             00000000
+STR3B                             00000001
+STR3C                             00000002
+STR3D                             00000003
+STR3SYNC                          00000004
+STX                               0x55
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+SYNC1                             00000004
+SYNC2                             00000004
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 39
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SendAcknowledge                   00000258
+SendNext                          000000A6
+Setup                             0000001A
+StartApp                          000000E4
+StartFlashWrite                   000001C6
+StartOfLine                       0000006C
+StartWrite                        00000260
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T1CKI                             00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1G                               00000005
+T1GCON                            00000FCC
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GTM                             00000005
+T1GVAL                            00000002
+T1G_DONE                          00000003
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RD16                            00000001
+T1SOSCEN                          00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FBA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CKI_PORTB                       00000005
+T3CKI_PORTC                       00000000
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3G                               00000000
+T3GCON                            00000FB4
+T3GGO                             00000003
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 40
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T3GGO_NOT_DONE                    00000003
+T3GPOL                            00000006
+T3GSPM                            00000004
+T3GSS0                            00000000
+T3GSS1                            00000001
+T3GTM                             00000005
+T3GVAL                            00000002
+T3G_DONE                          00000003
+T3OSCEN                           00000003
+T3RD16                            00000001
+T3SOSCEN                          00000003
+T4CKPS0                           00000000
+T4CKPS1                           00000001
+T4CON                             00000F51
+T4OUTPS0                          00000003
+T4OUTPS1                          00000004
+T4OUTPS2                          00000005
+T4OUTPS3                          00000006
+T5CKI                             00000002
+T5CKPS0                           00000004
+T5CKPS1                           00000005
+T5CON                             00000F4E
+T5G                               00000004
+T5GCON                            00000F4D
+T5GGO                             00000003
+T5GGO_NOT_DONE                    00000003
+T5GPOL                            00000006
+T5GSPM                            00000004
+T5GSS0                            00000000
+T5GSS1                            00000001
+T5GTM                             00000005
+T5GVAL                            00000002
+T5G_DONE                          00000003
+T5RD16                            00000001
+T5SOSCEN                          00000003
+T5SYNC                            00000002
+T6CKPS0                           00000000
+T6CKPS1                           00000001
+T6CON                             00000F4A
+T6OUTPS0                          00000003
+T6OUTPS1                          00000004
+T6OUTPS2                          00000005
+T6OUTPS3                          00000006
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TGEN                              00000004
+TMR0                              00000FD6
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 41
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1                              00000FCE
+TMR1CS0                           00000006
+TMR1CS1                           00000007
+TMR1GE                            00000007
+TMR1GIE                           00000000
+TMR1GIF                           00000000
+TMR1GIP                           00000000
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1MD                            00000000
+TMR1ON                            00000000
+TMR2                              00000FBC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2MD                            00000001
+TMR2ON                            00000002
+TMR3                              00000FB2
+TMR3CS0                           00000006
+TMR3CS1                           00000007
+TMR3GE                            00000007
+TMR3GIE                           00000001
+TMR3GIF                           00000001
+TMR3GIP                           00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3MD                            00000002
+TMR3ON                            00000000
+TMR4                              00000F53
+TMR4IE                            00000000
+TMR4IF                            00000000
+TMR4IP                            00000000
+TMR4MD                            00000003
+TMR4ON                            00000002
+TMR5                              00000F4F
+TMR5CS0                           00000006
+TMR5CS1                           00000007
+TMR5GE                            00000007
+TMR5GIE                           00000002
+TMR5GIF                           00000002
+TMR5GIP                           00000002
+TMR5H                             00000F50
+TMR5IE                            00000001
+TMR5IF                            00000001
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR5IP                            00000001
+TMR5L                             00000F4F
+TMR5MD                            00000004
+TMR5ON                            00000000
+TMR6                              00000F4C
+TMR6IE                            00000002
+TMR6IF                            00000002
+TMR6IP                            00000002
+TMR6MD                            00000005
+TMR6ON                            00000002
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TRIGSEL                           00000007
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISA7                            00000007
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRIS_BOOTLOADER_INDICATOR         TRISC,TRISC0
+TRIS_UART_RX                      TRISC,TRISC7
+TRIS_UART_TX                      TRISC,TRISC6
+TRMT                              00000001
+TRMT1                             00000001
+TRMT2                             00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+TX                                00000006
+TX1                               00000006
+TX1IE                             00000004
+TX1IF                             00000004
+TX1IP                             00000004
+TX1REG                            00000FAD
+TX1STA                            00000FAC
+TX2                               00000006
+TX2IE                             00000004
+TX2IF                             00000004
+TX2IP                             00000004
+TX2REG                            00000F73
+TX2STA                            00000F72
+TX9                               00000006
+TX91                              00000006
+TX92                              00000006
+TX9D                              00000000
+TX9D1                             00000000
+TX9D2                             00000000
+TXDATA                            00000006
+TXEN                              00000005
+TXEN1                             00000005
+TXEN2                             00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXREG1                            00000FAD
+TXREG2                            00000F73
+TXSTA                             00000FAC
+TXSTA1                            00000FAC
+TXSTA2                            00000F72
+UA                                00000001
+UART1MD                           00000006
+UART2MD                           00000007
+UART_RCIF                         PIR1,RC1IF
+UART_RX                           PORTC,7
+UART_TXIF                         PIR1,TX1IF
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+VDIRMAG                           00000007
+VIntH                             00000008
+VIntL                             00000018
+VPP                               00000003
+VREFCON0                          00000F42
+VREFCON1                          00000F41
+VREFCON2                          00000F40
+VREFM                             00000002
+VREFN                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WPUB                              00000F61
+WPUB0                             00000000
+WPUB1                             00000001
+WPUB2                             00000002
+WPUB3                             00000003
+WPUB4                             00000004
+WPUB5                             00000005
+WPUB6                             00000006
+WPUB7                             00000007
+WPUE3                             00000007
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WRITE_FLASH_BLOCKSIZE             00000040
+WR_CONFIG                         0x07
+WR_EEDATA                         0x05
+WR_FLASH                          0x02
+WUE                               00000001
+WaitForAutoBaud                   0000005A
+WrRS232                           000000B0
+WriteConfig                       00000216
+WriteEE                           00000200
+WritePacket                       0000009C
+WriteProgMem                      000001B6
+Z                                 00000002
+_.org_2_020C                      0000020C
+_BOREN_NOSLP_2L                   000000FD
+_BOREN_OFF_2L                     000000F9
+_BOREN_ON_2L                      000000FB
+_BOREN_SBORDIS_2L                 000000FF
+_BORV_190_2L                      000000FF
+_BORV_220_2L                      000000F7
+_BORV_250_2L                      000000EF
+_BORV_285_2L                      000000E7
+_CCP2MX_PORTB3_3H                 000000FE
+_CCP2MX_PORTC1_3H                 000000FF
+_CCP3MX_PORTB5_3H                 000000FF
+_CCP3MX_PORTE0_3H                 000000FB
+_CONFIG1H                         00300001
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECHPIO6_1H                  000000F5
+_FOSC_ECHP_1H                     000000F4
+_FOSC_ECLPIO6_1H                  000000FD
+_FOSC_ECLP_1H                     000000FC
+_FOSC_ECMPIO6_1H                  000000FB
+_FOSC_ECMP_1H                     000000FA
+_FOSC_HSHP_1H                     000000F2
+_FOSC_HSMP_1H                     000000F3
+_FOSC_INTIO67_1H                  000000F8
+_FOSC_INTIO7_1H                   000000F9
+_FOSC_LP_1H                       000000F0
+_FOSC_RCIO6_1H                    000000F7
+_FOSC_RC_1H                       000000F6
+_FOSC_XT_1H                       000000F1
+_HFOFST_OFF_3H                    000000F7
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_HFOFST_ON_3H                     000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_EXTMCLR_3H                 000000FF
+_MCLRE_INTMCLR_3H                 0000007F
+_P2BMX_PORTC0_3H                  000000DF
+_P2BMX_PORTD2_3H                  000000FF
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLCFG_OFF_1H                    000000EF
+_PLLCFG_ON_1H                     000000FF
+_PRICLKEN_OFF_1H                  000000DF
+_PRICLKEN_ON_1H                   000000FF
+_PWRTEN_OFF_2L                    000000FF
+_PWRTEN_ON_2L                     000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_T3CMX_PORTB5_3H                  000000EF
+_T3CMX_PORTC0_3H                  000000FF
+_WDTEN_NOSLP_2H                   000000FD
+_WDTEN_OFF_2H                     000000FC
+_WDTEN_ON_2H                      000000FF
+_WDTEN_SWON_2H                    000000FE
+_WDTPS_1024_2H                    000000EB
+_WDTPS_128_2H                     000000DF
+_WDTPS_16384_2H                   000000FB
+_WDTPS_16_2H                      000000D3
+_WDTPS_1_2H                       000000C3
+_WDTPS_2048_2H                    000000EF
+_WDTPS_256_2H                     000000E3
+_WDTPS_2_2H                       000000C7
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000D7
+_WDTPS_4096_2H                    000000F3
+_WDTPS_4_2H                       000000CB
+_WDTPS_512_2H                     000000E7
+_WDTPS_64_2H                      000000DB
+_WDTPS_8192_2H                    000000F7
+_WDTPS_8_2H                       000000CF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+MPASM 5.70               PIC18F_BOOTLOAD.ASM   11-19-2020  10:03:34         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18LF46K22                       00000001
+pmwtpi                            
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

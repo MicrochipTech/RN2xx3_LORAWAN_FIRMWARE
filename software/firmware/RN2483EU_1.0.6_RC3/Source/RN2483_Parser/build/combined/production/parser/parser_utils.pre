@@ -1,0 +1,444 @@
+
+# 1 "parser/parser_utils.c"
+
+# 4 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\__size_t.h"
+typedef unsigned size_t;
+
+# 7 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\stdlib.h"
+typedef unsigned short wchar_t;
+
+# 15
+typedef struct {
+int rem;
+int quot;
+} div_t;
+typedef struct {
+unsigned rem;
+unsigned quot;
+} udiv_t;
+typedef struct {
+long quot;
+long rem;
+} ldiv_t;
+typedef struct {
+unsigned long quot;
+unsigned long rem;
+} uldiv_t;
+
+# 53
+extern double atof(const char *);
+extern double strtod(const char *, const char **);
+extern int atoi(const char *);
+extern unsigned xtoi(const char *);
+extern long atol(const char *);
+extern long strtol(const char *, char **, int);
+
+extern int rand(void);
+extern void srand(unsigned int);
+extern void * calloc(size_t, size_t);
+extern div_t div(int numer, int denom);
+extern udiv_t udiv(unsigned numer, unsigned denom);
+extern ldiv_t ldiv(long numer, long denom);
+extern uldiv_t uldiv(unsigned long numer,unsigned long denom);
+extern unsigned long _lrotl(unsigned long value, unsigned int shift);
+extern unsigned long _lrotr(unsigned long value, unsigned int shift);
+extern unsigned int _rotl(unsigned int value, unsigned int shift);
+extern unsigned int _rotr(unsigned int value, unsigned int shift);
+
+
+
+
+extern void * malloc(size_t);
+extern void free(void *);
+extern void * realloc(void *, size_t);
+
+
+# 13 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\xc8debug.h"
+#pragma intrinsic(__builtin_software_breakpoint)
+extern void __builtin_software_breakpoint(void);
+
+# 86 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\stdlib.h"
+extern int atexit(void (*)(void));
+extern char * getenv(const char *);
+extern char ** environ;
+extern int system(char *);
+extern void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+extern void * bsearch(const void *, void *, size_t, size_t, int(*)(const void *, const void *));
+extern int abs(int);
+extern long labs(long);
+
+extern char * itoa(char * buf, int val, int base);
+extern char * utoa(char * buf, unsigned val, int base);
+
+
+
+
+extern char * ltoa(char * buf, long val, int base);
+extern char * ultoa(char * buf, unsigned long val, int base);
+
+extern char * ftoa(float f, int * status);
+
+# 14 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\string.h"
+extern void * memcpy(void *, const void *, size_t);
+extern void * memmove(void *, const void *, size_t);
+extern void * memset(void *, int, size_t);
+
+# 36
+extern char * strcat(char *, const char *);
+extern char * strcpy(char *, const char *);
+extern char * strncat(char *, const char *, size_t);
+extern char * strncpy(char *, const char *, size_t);
+extern char * strdup(const char *);
+extern char * strtok(char *, const char *);
+
+
+extern int memcmp(const void *, const void *, size_t);
+extern int strcmp(const char *, const char *);
+extern int stricmp(const char *, const char *);
+extern int strncmp(const char *, const char *, size_t);
+extern int strnicmp(const char *, const char *, size_t);
+extern void * memchr(const void *, int, size_t);
+extern size_t strcspn(const char *, const char *);
+extern char * strpbrk(const char *, const char *);
+extern size_t strspn(const char *, const char *);
+extern char * strstr(const char *, const char *);
+extern char * stristr(const char *, const char *);
+extern char * strerror(int);
+extern size_t strlen(const char *);
+extern char * strchr(const char *, int);
+extern char * strichr(const char *, int);
+extern char * strrchr(const char *, int);
+extern char * strrichr(const char *, int);
+
+# 4 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\ctype.h"
+extern __bit isalpha(char);
+extern __bit isupper(char);
+extern __bit islower(char);
+extern __bit isdigit(char);
+extern __bit isxdigit(char);
+extern __bit isspace(char);
+extern __bit ispunct(char);
+extern __bit isalnum(char);
+extern __bit isprint(char);
+extern __bit isgraph(char);
+extern __bit iscntrl(char);
+
+
+extern char toupper(char);
+extern char tolower(char);
+
+# 13 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\stdint.h"
+typedef signed char int8_t;
+
+# 20
+typedef signed int int16_t;
+
+# 28
+typedef signed short long int int24_t;
+
+# 36
+typedef signed long int int32_t;
+
+# 43
+typedef unsigned char uint8_t;
+
+# 49
+typedef unsigned int uint16_t;
+
+# 56
+typedef unsigned short long int uint24_t;
+
+# 63
+typedef unsigned long int uint32_t;
+
+# 71
+typedef signed char int_least8_t;
+
+# 78
+typedef signed int int_least16_t;
+
+# 90
+typedef signed short long int int_least24_t;
+
+# 98
+typedef signed long int int_least32_t;
+
+# 105
+typedef unsigned char uint_least8_t;
+
+# 111
+typedef unsigned int uint_least16_t;
+
+# 121
+typedef unsigned short long int uint_least24_t;
+
+# 128
+typedef unsigned long int uint_least32_t;
+
+# 137
+typedef signed char int_fast8_t;
+
+# 144
+typedef signed int int_fast16_t;
+
+# 156
+typedef signed short long int int_fast24_t;
+
+# 164
+typedef signed long int int_fast32_t;
+
+# 171
+typedef unsigned char uint_fast8_t;
+
+# 177
+typedef unsigned int uint_fast16_t;
+
+# 187
+typedef unsigned short long int uint_fast24_t;
+
+# 194
+typedef unsigned long int uint_fast32_t;
+
+# 200
+typedef int32_t intmax_t;
+
+
+
+
+typedef uint32_t uintmax_t;
+
+
+
+
+typedef int16_t intptr_t;
+
+
+
+
+typedef uint16_t uintptr_t;
+
+# 12 "C:\Program Files (x86)\Microchip\xc8\v1.45\include\stdbool.h"
+typedef unsigned char bool;
+
+# 47 "parser/parser_utils.h"
+bool Validate_HexValue(void* pValue);
+
+uint8_t Parser_HexAsciiToInt(uint16_t hexAsciiLen, char* pInHexAscii, uint8_t* pOutInt);
+
+void Parser_IntArrayToHexAscii(uint8_t arrayLen, uint8_t* pInArray, uint8_t* pOutHexAscii);
+bool Validate_Uint8DecAsciiValue(void* pValue, uint8_t* pDecValue);
+bool Validate_UintDecAsciiValue(void* pValue, uint8_t DigitsNb, uint32_t maxValue);
+uint8_t Validate_OnOffAsciiValue(void* pValue);
+uint8_t Validate_Str1Str2AsciiValue(void* pValue, void* pStr1, void* pStr2);
+int8_t Pin_Index(char* pinName);
+
+# 51 "parser/parser_utils.c"
+static const char* gapParseOnOff[] =
+{
+{"off"},
+{"on"}
+};
+
+bool Validate_HexValue(void* pValue)
+{
+bool flag = 1;
+char* character;
+
+for(character = pValue; *character; character++)
+{
+if(isxdigit(*character) == 0)
+{
+flag = 0;
+break;
+}
+}
+
+return flag;
+}
+
+uint8_t Parser_HexAsciiToInt(uint16_t hexAsciiLen, char* pInHexAscii, uint8_t* pOutInt)
+{
+uint16_t rxHexAsciiLen = strlen(pInHexAscii);
+uint16_t iCtr = 0;
+uint16_t jCtr = rxHexAsciiLen >> 1;
+uint8_t retValue = 0;
+char tempBuff[3];
+
+if(rxHexAsciiLen % 2 == 0)
+{
+jCtr --;
+}
+
+if(hexAsciiLen == rxHexAsciiLen)
+{
+while(rxHexAsciiLen > 0)
+{
+if(rxHexAsciiLen >= 2U)
+{
+tempBuff[iCtr] = *(((char*)pInHexAscii) + (rxHexAsciiLen - 2));
+iCtr ++;
+tempBuff[iCtr] = *(((char*)pInHexAscii) + (rxHexAsciiLen - 1));
+
+rxHexAsciiLen -= 2U;
+}
+else
+{
+tempBuff[iCtr] = '0';
+iCtr ++;
+tempBuff[iCtr] = *(((char*)pInHexAscii) + (rxHexAsciiLen - 1));
+
+rxHexAsciiLen --;
+}
+
+iCtr ++;
+tempBuff[iCtr] = '\0';
+*(pOutInt + jCtr) = xtoi(tempBuff);
+
+iCtr = 0;
+jCtr --;
+}
+
+retValue = 1;
+}
+
+return retValue;
+}
+
+void Parser_IntArrayToHexAscii(uint8_t arrayLen, uint8_t* pInArray, uint8_t* pOutHexAscii)
+{
+uint8_t iCtr = 0U;
+
+for(iCtr = 0; iCtr < arrayLen; iCtr ++)
+{
+itoa(&pOutHexAscii[iCtr << 1], pInArray[iCtr], 16);
+
+if(pInArray[iCtr] <= 15)
+{
+
+pOutHexAscii[(iCtr << 1) + 1] = pOutHexAscii[iCtr << 1];
+pOutHexAscii[iCtr << 1] = '0';
+}
+}
+
+pOutHexAscii[(iCtr << 1)] = '\0';
+}
+
+bool Validate_Uint8DecAsciiValue(void* pValue, uint8_t* pDecValue)
+{
+bool flag = 0;
+char* character;
+uint8_t valueLen = strlen(pValue);
+int16_t value = atoi(pValue);
+
+
+if((valueLen <= 3U) && (value >= 0) && (value <= 255))
+{
+flag = 1;
+
+for(character = pValue; *character; character++)
+{
+if(isdigit(*character) == 0)
+{
+flag = 0;
+break;
+}
+}
+}
+
+if(flag)
+{
+*pDecValue = (uint8_t)value;
+}
+
+return flag;
+}
+
+# 196
+bool Validate_UintDecAsciiValue(void* pValue, uint8_t DigitsNb, uint32_t maxValue)
+{
+bool flag = 0;
+uint8_t buf[11];
+uint32_t value = ((unsigned long)strtol((pValue),((0)),(10)));
+
+ultoa(buf, value, 10U);
+
+flag = 1;
+
+if (0 != strcmp((uint8_t*)pValue, buf))
+{
+flag = 0;
+}
+
+if (value > maxValue)
+{
+flag = 0;
+}
+
+return flag;
+}
+
+# 223
+uint8_t Validate_OnOffAsciiValue(void* pValue)
+{
+uint8_t result = 2U;
+
+if(0U == stricmp(pValue, gapParseOnOff[0U]))
+{
+result = 0U;
+}
+else if (0U == stricmp(pValue, gapParseOnOff[1U]))
+{
+result = 1U;
+}
+
+return result;
+}
+
+# 243
+uint8_t Validate_Str1Str2AsciiValue(void* pValue, void* pStr1, void* pStr2)
+{
+uint8_t result = 2U;
+
+if(0U == stricmp(pValue, pStr1))
+{
+result = 0U;
+}
+else if (0U == stricmp(pValue, pStr2))
+{
+result = 1U;
+}
+
+return result;
+}
+
+int8_t Pin_Index(char* pinName)
+{
+int8_t pinNumber = -1;
+
+if(0 == strncmp(pinName, "GPIO", 4))
+{
+if(Validate_UintDecAsciiValue(&pinName[4], 2, 13))
+{
+pinNumber = atoi(&pinName[4]);
+}
+}
+else if (0 == strcmp(pinName, "UART_RTS"))
+{
+pinNumber = 14;
+}
+else if (0 == strcmp(pinName, "UART_CTS"))
+{
+pinNumber = 15;
+}
+else if (0 == strcmp(pinName, "TEST0"))
+{
+pinNumber = 16;
+}
+else if (0 == strcmp(pinName, "TEST1"))
+{
+pinNumber = 17;
+}
+
+return pinNumber;
+}
+

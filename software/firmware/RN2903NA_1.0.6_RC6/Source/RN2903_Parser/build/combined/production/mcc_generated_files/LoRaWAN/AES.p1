@@ -1,0 +1,729 @@
+Version 3.2 HI-TECH Software Intermediate Code
+[; ;__size_t.h: 4: typedef unsigned size_t;
+[; ;stdlib.h: 7: typedef unsigned short wchar_t;
+[; ;stdlib.h: 15: typedef struct {
+[; ;stdlib.h: 16: int rem;
+[; ;stdlib.h: 17: int quot;
+[; ;stdlib.h: 18: } div_t;
+[; ;stdlib.h: 19: typedef struct {
+[; ;stdlib.h: 20: unsigned rem;
+[; ;stdlib.h: 21: unsigned quot;
+[; ;stdlib.h: 22: } udiv_t;
+[; ;stdlib.h: 23: typedef struct {
+[; ;stdlib.h: 24: long quot;
+[; ;stdlib.h: 25: long rem;
+[; ;stdlib.h: 26: } ldiv_t;
+[; ;stdlib.h: 27: typedef struct {
+[; ;stdlib.h: 28: unsigned long quot;
+[; ;stdlib.h: 29: unsigned long rem;
+[; ;stdlib.h: 30: } uldiv_t;
+[; ;stdlib.h: 53: extern double atof(const char *);
+[; ;stdlib.h: 54: extern double strtod(const char *, const char **);
+[; ;stdlib.h: 55: extern int atoi(const char *);
+[; ;stdlib.h: 56: extern unsigned xtoi(const char *);
+[; ;stdlib.h: 57: extern long atol(const char *);
+[; ;stdlib.h: 58: extern long strtol(const char *, char **, int);
+[; ;stdlib.h: 60: extern int rand(void);
+[; ;stdlib.h: 61: extern void srand(unsigned int);
+[; ;stdlib.h: 62: extern void * calloc(size_t, size_t);
+[; ;stdlib.h: 63: extern div_t div(int numer, int denom);
+[; ;stdlib.h: 64: extern udiv_t udiv(unsigned numer, unsigned denom);
+[; ;stdlib.h: 65: extern ldiv_t ldiv(long numer, long denom);
+[; ;stdlib.h: 66: extern uldiv_t uldiv(unsigned long numer,unsigned long denom);
+[; ;stdlib.h: 67: extern unsigned long _lrotl(unsigned long value, unsigned int shift);
+[; ;stdlib.h: 68: extern unsigned long _lrotr(unsigned long value, unsigned int shift);
+[; ;stdlib.h: 69: extern unsigned int _rotl(unsigned int value, unsigned int shift);
+[; ;stdlib.h: 70: extern unsigned int _rotr(unsigned int value, unsigned int shift);
+[; ;stdlib.h: 75: extern void * malloc(size_t);
+[; ;stdlib.h: 76: extern void free(void *);
+[; ;stdlib.h: 77: extern void * realloc(void *, size_t);
+[; ;xc8debug.h: 14: extern void __builtin_software_breakpoint(void);
+[; ;stdlib.h: 86: extern int atexit(void (*)(void));
+[; ;stdlib.h: 87: extern char * getenv(const char *);
+[; ;stdlib.h: 88: extern char ** environ;
+[; ;stdlib.h: 89: extern int system(char *);
+[; ;stdlib.h: 90: extern void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+[; ;stdlib.h: 91: extern void * bsearch(const void *, void *, size_t, size_t, int(*)(const void *, const void *));
+[; ;stdlib.h: 92: extern int abs(int);
+[; ;stdlib.h: 93: extern long labs(long);
+[; ;stdlib.h: 95: extern char * itoa(char * buf, int val, int base);
+[; ;stdlib.h: 96: extern char * utoa(char * buf, unsigned val, int base);
+[; ;stdlib.h: 101: extern char * ltoa(char * buf, long val, int base);
+[; ;stdlib.h: 102: extern char * ultoa(char * buf, unsigned long val, int base);
+[; ;stdlib.h: 104: extern char * ftoa(float f, int * status);
+[; ;stdint.h: 13: typedef signed char int8_t;
+[; ;stdint.h: 20: typedef signed int int16_t;
+[; ;stdint.h: 28: typedef signed short long int int24_t;
+[; ;stdint.h: 36: typedef signed long int int32_t;
+[; ;stdint.h: 43: typedef unsigned char uint8_t;
+[; ;stdint.h: 49: typedef unsigned int uint16_t;
+[; ;stdint.h: 56: typedef unsigned short long int uint24_t;
+[; ;stdint.h: 63: typedef unsigned long int uint32_t;
+[; ;stdint.h: 71: typedef signed char int_least8_t;
+[; ;stdint.h: 78: typedef signed int int_least16_t;
+[; ;stdint.h: 90: typedef signed short long int int_least24_t;
+[; ;stdint.h: 98: typedef signed long int int_least32_t;
+[; ;stdint.h: 105: typedef unsigned char uint_least8_t;
+[; ;stdint.h: 111: typedef unsigned int uint_least16_t;
+[; ;stdint.h: 121: typedef unsigned short long int uint_least24_t;
+[; ;stdint.h: 128: typedef unsigned long int uint_least32_t;
+[; ;stdint.h: 137: typedef signed char int_fast8_t;
+[; ;stdint.h: 144: typedef signed int int_fast16_t;
+[; ;stdint.h: 156: typedef signed short long int int_fast24_t;
+[; ;stdint.h: 164: typedef signed long int int_fast32_t;
+[; ;stdint.h: 171: typedef unsigned char uint_fast8_t;
+[; ;stdint.h: 177: typedef unsigned int uint_fast16_t;
+[; ;stdint.h: 187: typedef unsigned short long int uint_fast24_t;
+[; ;stdint.h: 194: typedef unsigned long int uint_fast32_t;
+[; ;stdint.h: 200: typedef int32_t intmax_t;
+[; ;stdint.h: 205: typedef uint32_t uintmax_t;
+[; ;stdint.h: 210: typedef int16_t intptr_t;
+[; ;stdint.h: 215: typedef uint16_t uintptr_t;
+[; ;AES.h: 28: void AESEncode(unsigned char* block, unsigned char* key);
+[; ;AES.h: 29: void AESDecode(unsigned char* block, unsigned char* key);
+[; ;AES.h: 30: void AESCalcDecodeKey(unsigned char* key);
+"48 mcc_generated_files/LoRaWAN/AES.c
+[v __roundCounter `uc ~T0 @X0 1 s ]
+[; ;AES.c: 48: static unsigned char _roundCounter;
+"49
+[v __rcon `uc ~T0 @X0 1 s ]
+[; ;AES.c: 49: static unsigned char _rcon;
+"54
+[v _STable `Cuc ~T0 @X0 -> 0 `x e ]
+[i _STable
+:U ..
+"56
+-> -> 99 `i `uc
+-> -> 124 `i `uc
+-> -> 119 `i `uc
+-> -> 123 `i `uc
+-> -> 242 `i `uc
+-> -> 107 `i `uc
+-> -> 111 `i `uc
+-> -> 197 `i `uc
+-> -> 48 `i `uc
+-> -> 1 `i `uc
+-> -> 103 `i `uc
+-> -> 43 `i `uc
+-> -> 254 `i `uc
+-> -> 215 `i `uc
+-> -> 171 `i `uc
+-> -> 118 `i `uc
+"57
+-> -> 202 `i `uc
+-> -> 130 `i `uc
+-> -> 201 `i `uc
+-> -> 125 `i `uc
+-> -> 250 `i `uc
+-> -> 89 `i `uc
+-> -> 71 `i `uc
+-> -> 240 `i `uc
+-> -> 173 `i `uc
+-> -> 212 `i `uc
+-> -> 162 `i `uc
+-> -> 175 `i `uc
+-> -> 156 `i `uc
+-> -> 164 `i `uc
+-> -> 114 `i `uc
+-> -> 192 `i `uc
+"58
+-> -> 183 `i `uc
+-> -> 253 `i `uc
+-> -> 147 `i `uc
+-> -> 38 `i `uc
+-> -> 54 `i `uc
+-> -> 63 `i `uc
+-> -> 247 `i `uc
+-> -> 204 `i `uc
+-> -> 52 `i `uc
+-> -> 165 `i `uc
+-> -> 229 `i `uc
+-> -> 241 `i `uc
+-> -> 113 `i `uc
+-> -> 216 `i `uc
+-> -> 49 `i `uc
+-> -> 21 `i `uc
+"59
+-> -> 4 `i `uc
+-> -> 199 `i `uc
+-> -> 35 `i `uc
+-> -> 195 `i `uc
+-> -> 24 `i `uc
+-> -> 150 `i `uc
+-> -> 5 `i `uc
+-> -> 154 `i `uc
+-> -> 7 `i `uc
+-> -> 18 `i `uc
+-> -> 128 `i `uc
+-> -> 226 `i `uc
+-> -> 235 `i `uc
+-> -> 39 `i `uc
+-> -> 178 `i `uc
+-> -> 117 `i `uc
+"60
+-> -> 9 `i `uc
+-> -> 131 `i `uc
+-> -> 44 `i `uc
+-> -> 26 `i `uc
+-> -> 27 `i `uc
+-> -> 110 `i `uc
+-> -> 90 `i `uc
+-> -> 160 `i `uc
+-> -> 82 `i `uc
+-> -> 59 `i `uc
+-> -> 214 `i `uc
+-> -> 179 `i `uc
+-> -> 41 `i `uc
+-> -> 227 `i `uc
+-> -> 47 `i `uc
+-> -> 132 `i `uc
+"61
+-> -> 83 `i `uc
+-> -> 209 `i `uc
+-> -> 0 `i `uc
+-> -> 237 `i `uc
+-> -> 32 `i `uc
+-> -> 252 `i `uc
+-> -> 177 `i `uc
+-> -> 91 `i `uc
+-> -> 106 `i `uc
+-> -> 203 `i `uc
+-> -> 190 `i `uc
+-> -> 57 `i `uc
+-> -> 74 `i `uc
+-> -> 76 `i `uc
+-> -> 88 `i `uc
+-> -> 207 `i `uc
+"62
+-> -> 208 `i `uc
+-> -> 239 `i `uc
+-> -> 170 `i `uc
+-> -> 251 `i `uc
+-> -> 67 `i `uc
+-> -> 77 `i `uc
+-> -> 51 `i `uc
+-> -> 133 `i `uc
+-> -> 69 `i `uc
+-> -> 249 `i `uc
+-> -> 2 `i `uc
+-> -> 127 `i `uc
+-> -> 80 `i `uc
+-> -> 60 `i `uc
+-> -> 159 `i `uc
+-> -> 168 `i `uc
+"63
+-> -> 81 `i `uc
+-> -> 163 `i `uc
+-> -> 64 `i `uc
+-> -> 143 `i `uc
+-> -> 146 `i `uc
+-> -> 157 `i `uc
+-> -> 56 `i `uc
+-> -> 245 `i `uc
+-> -> 188 `i `uc
+-> -> 182 `i `uc
+-> -> 218 `i `uc
+-> -> 33 `i `uc
+-> -> 16 `i `uc
+-> -> 255 `i `uc
+-> -> 243 `i `uc
+-> -> 210 `i `uc
+"64
+-> -> 205 `i `uc
+-> -> 12 `i `uc
+-> -> 19 `i `uc
+-> -> 236 `i `uc
+-> -> 95 `i `uc
+-> -> 151 `i `uc
+-> -> 68 `i `uc
+-> -> 23 `i `uc
+-> -> 196 `i `uc
+-> -> 167 `i `uc
+-> -> 126 `i `uc
+-> -> 61 `i `uc
+-> -> 100 `i `uc
+-> -> 93 `i `uc
+-> -> 25 `i `uc
+-> -> 115 `i `uc
+"65
+-> -> 96 `i `uc
+-> -> 129 `i `uc
+-> -> 79 `i `uc
+-> -> 220 `i `uc
+-> -> 34 `i `uc
+-> -> 42 `i `uc
+-> -> 144 `i `uc
+-> -> 136 `i `uc
+-> -> 70 `i `uc
+-> -> 238 `i `uc
+-> -> 184 `i `uc
+-> -> 20 `i `uc
+-> -> 222 `i `uc
+-> -> 94 `i `uc
+-> -> 11 `i `uc
+-> -> 219 `i `uc
+"66
+-> -> 224 `i `uc
+-> -> 50 `i `uc
+-> -> 58 `i `uc
+-> -> 10 `i `uc
+-> -> 73 `i `uc
+-> -> 6 `i `uc
+-> -> 36 `i `uc
+-> -> 92 `i `uc
+-> -> 194 `i `uc
+-> -> 211 `i `uc
+-> -> 172 `i `uc
+-> -> 98 `i `uc
+-> -> 145 `i `uc
+-> -> 149 `i `uc
+-> -> 228 `i `uc
+-> -> 121 `i `uc
+"67
+-> -> 231 `i `uc
+-> -> 200 `i `uc
+-> -> 55 `i `uc
+-> -> 109 `i `uc
+-> -> 141 `i `uc
+-> -> 213 `i `uc
+-> -> 78 `i `uc
+-> -> 169 `i `uc
+-> -> 108 `i `uc
+-> -> 86 `i `uc
+-> -> 244 `i `uc
+-> -> 234 `i `uc
+-> -> 101 `i `uc
+-> -> 122 `i `uc
+-> -> 174 `i `uc
+-> -> 8 `i `uc
+"68
+-> -> 186 `i `uc
+-> -> 120 `i `uc
+-> -> 37 `i `uc
+-> -> 46 `i `uc
+-> -> 28 `i `uc
+-> -> 166 `i `uc
+-> -> 180 `i `uc
+-> -> 198 `i `uc
+-> -> 232 `i `uc
+-> -> 221 `i `uc
+-> -> 116 `i `uc
+-> -> 31 `i `uc
+-> -> 75 `i `uc
+-> -> 189 `i `uc
+-> -> 139 `i `uc
+-> -> 138 `i `uc
+"69
+-> -> 112 `i `uc
+-> -> 62 `i `uc
+-> -> 181 `i `uc
+-> -> 102 `i `uc
+-> -> 72 `i `uc
+-> -> 3 `i `uc
+-> -> 246 `i `uc
+-> -> 14 `i `uc
+-> -> 97 `i `uc
+-> -> 53 `i `uc
+-> -> 87 `i `uc
+-> -> 185 `i `uc
+-> -> 134 `i `uc
+-> -> 193 `i `uc
+-> -> 29 `i `uc
+-> -> 158 `i `uc
+"70
+-> -> 225 `i `uc
+-> -> 248 `i `uc
+-> -> 152 `i `uc
+-> -> 17 `i `uc
+-> -> 105 `i `uc
+-> -> 217 `i `uc
+-> -> 142 `i `uc
+-> -> 148 `i `uc
+-> -> 155 `i `uc
+-> -> 30 `i `uc
+-> -> 135 `i `uc
+-> -> 233 `i `uc
+-> -> 206 `i `uc
+-> -> 85 `i `uc
+-> -> 40 `i `uc
+-> -> 223 `i `uc
+"71
+-> -> 140 `i `uc
+-> -> 161 `i `uc
+-> -> 137 `i `uc
+-> -> 13 `i `uc
+-> -> 191 `i `uc
+-> -> 230 `i `uc
+-> -> 66 `i `uc
+-> -> 104 `i `uc
+-> -> 65 `i `uc
+-> -> 153 `i `uc
+-> -> 45 `i `uc
+-> -> 15 `i `uc
+-> -> 176 `i `uc
+-> -> 84 `i `uc
+-> -> 187 `i `uc
+"72
+-> -> 22 `i `uc
+..
+]
+[; ;AES.c: 54: const unsigned char STable[] =
+[; ;AES.c: 55: {
+[; ;AES.c: 56: 0x63,0x7C,0x77,0x7B,0xF2,0x6B,0x6F,0xC5,0x30,0x01,0x67,0x2B,0xFE,0xD7,0xAB,0x76,
+[; ;AES.c: 57: 0xCA,0x82,0xC9,0x7D,0xFA,0x59,0x47,0xF0,0xAD,0xD4,0xA2,0xAF,0x9C,0xA4,0x72,0xC0,
+[; ;AES.c: 58: 0xB7,0xFD,0x93,0x26,0x36,0x3F,0xF7,0xCC,0x34,0xA5,0xE5,0xF1,0x71,0xD8,0x31,0x15,
+[; ;AES.c: 59: 0x04,0xC7,0x23,0xC3,0x18,0x96,0x05,0x9A,0x07,0x12,0x80,0xE2,0xEB,0x27,0xB2,0x75,
+[; ;AES.c: 60: 0x09,0x83,0x2C,0x1A,0x1B,0x6E,0x5A,0xA0,0x52,0x3B,0xD6,0xB3,0x29,0xE3,0x2F,0x84,
+[; ;AES.c: 61: 0x53,0xD1,0x00,0xED,0x20,0xFC,0xB1,0x5B,0x6A,0xCB,0xBE,0x39,0x4A,0x4C,0x58,0xCF,
+[; ;AES.c: 62: 0xD0,0xEF,0xAA,0xFB,0x43,0x4D,0x33,0x85,0x45,0xF9,0x02,0x7F,0x50,0x3C,0x9F,0xA8,
+[; ;AES.c: 63: 0x51,0xA3,0x40,0x8F,0x92,0x9D,0x38,0xF5,0xBC,0xB6,0xDA,0x21,0x10,0xFF,0xF3,0xD2,
+[; ;AES.c: 64: 0xCD,0x0C,0x13,0xEC,0x5F,0x97,0x44,0x17,0xC4,0xA7,0x7E,0x3D,0x64,0x5D,0x19,0x73,
+[; ;AES.c: 65: 0x60,0x81,0x4F,0xDC,0x22,0x2A,0x90,0x88,0x46,0xEE,0xB8,0x14,0xDE,0x5E,0x0B,0xDB,
+[; ;AES.c: 66: 0xE0,0x32,0x3A,0x0A,0x49,0x06,0x24,0x5C,0xC2,0xD3,0xAC,0x62,0x91,0x95,0xE4,0x79,
+[; ;AES.c: 67: 0xE7,0xC8,0x37,0x6D,0x8D,0xD5,0x4E,0xA9,0x6C,0x56,0xF4,0xEA,0x65,0x7A,0xAE,0x08,
+[; ;AES.c: 68: 0xBA,0x78,0x25,0x2E,0x1C,0xA6,0xB4,0xC6,0xE8,0xDD,0x74,0x1F,0x4B,0xBD,0x8B,0x8A,
+[; ;AES.c: 69: 0x70,0x3E,0xB5,0x66,0x48,0x03,0xF6,0x0E,0x61,0x35,0x57,0xB9,0x86,0xC1,0x1D,0x9E,
+[; ;AES.c: 70: 0xE1,0xF8,0x98,0x11,0x69,0xD9,0x8E,0x94,0x9B,0x1E,0x87,0xE9,0xCE,0x55,0x28,0xDF,
+[; ;AES.c: 71: 0x8C,0xA1,0x89,0x0D,0xBF,0xE6,0x42,0x68,0x41,0x99,0x2D,0x0F,0xB0,0x54,0xBB,0x16
+[; ;AES.c: 72: };
+"160
+[v _EncKeySchedule `(v ~T0 @X0 1 ef1`*uc ]
+"161
+{
+[; ;AES.c: 160: void EncKeySchedule(unsigned char* key)
+[; ;AES.c: 161: {
+[e :U _EncKeySchedule ]
+"160
+[v _key `*uc ~T0 @X0 1 r1 ]
+"161
+[f ]
+[; ;AES.c: 163: key[0]^=STable[key[13]];
+"163
+[e =^ *U + _key * -> -> 0 `i `x -> -> # *U _key `i `x *U + &U _STable * -> *U + _key * -> -> 13 `i `x -> -> # *U _key `i `x `ux -> -> # *U &U _STable `ui `ux ]
+[; ;AES.c: 164: key[1]^=STable[key[14]];
+"164
+[e =^ *U + _key * -> -> 1 `i `x -> -> # *U _key `i `x *U + &U _STable * -> *U + _key * -> -> 14 `i `x -> -> # *U _key `i `x `ux -> -> # *U &U _STable `ui `ux ]
+[; ;AES.c: 165: key[2]^=STable[key[15]];
+"165
+[e =^ *U + _key * -> -> 2 `i `x -> -> # *U _key `i `x *U + &U _STable * -> *U + _key * -> -> 15 `i `x -> -> # *U _key `i `x `ux -> -> # *U &U _STable `ui `ux ]
+[; ;AES.c: 166: key[3]^=STable[key[12]];
+"166
+[e =^ *U + _key * -> -> 3 `i `x -> -> # *U _key `i `x *U + &U _STable * -> *U + _key * -> -> 12 `i `x -> -> # *U _key `i `x `ux -> -> # *U &U _STable `ui `ux ]
+[; ;AES.c: 168: key[0]^=_rcon;
+"168
+[e =^ *U + _key * -> -> 0 `i `x -> -> # *U _key `i `x __rcon ]
+[; ;AES.c: 169: _rcon = (((_rcon)<0x80)?(_rcon)<<1:(((_rcon)<<1)^0x1b) );
+"169
+[e = __rcon -> ? < -> __rcon `i -> 128 `i : << -> __rcon `i -> 1 `i ^ << -> __rcon `i -> 1 `i -> 27 `i `uc ]
+[; ;AES.c: 172: key[4]^=key[0];
+"172
+[e =^ *U + _key * -> -> 4 `i `x -> -> # *U _key `i `x *U + _key * -> -> 0 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 173: key[5]^=key[1];
+"173
+[e =^ *U + _key * -> -> 5 `i `x -> -> # *U _key `i `x *U + _key * -> -> 1 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 174: key[6]^=key[2];
+"174
+[e =^ *U + _key * -> -> 6 `i `x -> -> # *U _key `i `x *U + _key * -> -> 2 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 175: key[7]^=key[3];
+"175
+[e =^ *U + _key * -> -> 7 `i `x -> -> # *U _key `i `x *U + _key * -> -> 3 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 178: key[8]^=key[4];
+"178
+[e =^ *U + _key * -> -> 8 `i `x -> -> # *U _key `i `x *U + _key * -> -> 4 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 179: key[9]^=key[5];
+"179
+[e =^ *U + _key * -> -> 9 `i `x -> -> # *U _key `i `x *U + _key * -> -> 5 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 180: key[10]^=key[6];
+"180
+[e =^ *U + _key * -> -> 10 `i `x -> -> # *U _key `i `x *U + _key * -> -> 6 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 181: key[11]^=key[7];
+"181
+[e =^ *U + _key * -> -> 11 `i `x -> -> # *U _key `i `x *U + _key * -> -> 7 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 184: key[12]^=key[8];
+"184
+[e =^ *U + _key * -> -> 12 `i `x -> -> # *U _key `i `x *U + _key * -> -> 8 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 185: key[13]^=key[9];
+"185
+[e =^ *U + _key * -> -> 13 `i `x -> -> # *U _key `i `x *U + _key * -> -> 9 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 186: key[14]^=key[10];
+"186
+[e =^ *U + _key * -> -> 14 `i `x -> -> # *U _key `i `x *U + _key * -> -> 10 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 187: key[15]^=key[11];
+"187
+[e =^ *U + _key * -> -> 15 `i `x -> -> # *U _key `i `x *U + _key * -> -> 11 `i `x -> -> # *U _key `i `x ]
+[; ;AES.c: 188: }
+"188
+[e :UE 5 ]
+}
+"205
+[v _EncodeShiftRow `(v ~T0 @X0 1 ef1`*uc ]
+"206
+{
+[; ;AES.c: 205: void EncodeShiftRow(unsigned char* stateTable)
+[; ;AES.c: 206: {
+[e :U _EncodeShiftRow ]
+"205
+[v _stateTable `*uc ~T0 @X0 1 r1 ]
+"206
+[f ]
+"207
+[v _temp `uc ~T0 @X0 1 a ]
+[; ;AES.c: 207: unsigned char temp;
+[; ;AES.c: 212: temp=stateTable[1];
+"212
+[e = _temp *U + _stateTable * -> -> 1 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 213: stateTable[1]=stateTable[5];
+"213
+[e = *U + _stateTable * -> -> 1 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 5 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 214: stateTable[5]=stateTable[9];
+"214
+[e = *U + _stateTable * -> -> 5 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 9 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 215: stateTable[9]=stateTable[13];
+"215
+[e = *U + _stateTable * -> -> 9 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 13 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 216: stateTable[13]=temp;
+"216
+[e = *U + _stateTable * -> -> 13 `i `x -> -> # *U _stateTable `i `x _temp ]
+[; ;AES.c: 219: temp=stateTable[2];
+"219
+[e = _temp *U + _stateTable * -> -> 2 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 220: stateTable[2]=stateTable[10];
+"220
+[e = *U + _stateTable * -> -> 2 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 10 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 221: stateTable[10]=temp;
+"221
+[e = *U + _stateTable * -> -> 10 `i `x -> -> # *U _stateTable `i `x _temp ]
+[; ;AES.c: 222: temp=stateTable[14];
+"222
+[e = _temp *U + _stateTable * -> -> 14 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 223: stateTable[14]=stateTable[6];
+"223
+[e = *U + _stateTable * -> -> 14 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 6 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 224: stateTable[6]=temp;
+"224
+[e = *U + _stateTable * -> -> 6 `i `x -> -> # *U _stateTable `i `x _temp ]
+[; ;AES.c: 227: temp=stateTable[3];
+"227
+[e = _temp *U + _stateTable * -> -> 3 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 228: stateTable[3]=stateTable[15];
+"228
+[e = *U + _stateTable * -> -> 3 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 15 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 229: stateTable[15]=stateTable[11];
+"229
+[e = *U + _stateTable * -> -> 15 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 11 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 230: stateTable[11]=stateTable[7];
+"230
+[e = *U + _stateTable * -> -> 11 `i `x -> -> # *U _stateTable `i `x *U + _stateTable * -> -> 7 `i `x -> -> # *U _stateTable `i `x ]
+[; ;AES.c: 231: stateTable[7]=temp;
+"231
+[e = *U + _stateTable * -> -> 7 `i `x -> -> # *U _stateTable `i `x _temp ]
+[; ;AES.c: 232: }
+"232
+[e :UE 6 ]
+}
+"236
+[v _AESEncode `(v ~T0 @X0 1 ef2`*uc`*uc ]
+"237
+{
+[; ;AES.c: 236: void AESEncode(unsigned char* block, unsigned char* masterKey)
+[; ;AES.c: 237: {
+[e :U _AESEncode ]
+"236
+[v _block `*uc ~T0 @X0 1 r1 ]
+[v _masterKey `*uc ~T0 @X0 1 r2 ]
+"237
+[f ]
+"238
+[v _i `uc ~T0 @X0 1 a ]
+"240
+[v _key `uc ~T0 @X0 -> 16 `i a ]
+[; ;AES.c: 238: unsigned char i;
+[; ;AES.c: 240: unsigned char key[16];
+[; ;AES.c: 242: for (i = 0; i < 16; i++)
+"242
+{
+[e = _i -> -> 0 `i `uc ]
+[e $ < -> _i `i -> 16 `i 8  ]
+[e $U 9  ]
+"243
+[e :U 8 ]
+[; ;AES.c: 243: {
+{
+[; ;AES.c: 244: key[i] = masterKey[i];
+"244
+[e = *U + &U _key * -> _i `ux -> -> # *U &U _key `ui `ux *U + _masterKey * -> _i `ux -> -> # *U _masterKey `ui `ux ]
+"245
+}
+"242
+[e ++ _i -> -> 1 `i `uc ]
+[e $ < -> _i `i -> 16 `i 8  ]
+[e :U 9 ]
+"245
+}
+[; ;AES.c: 245: }
+[; ;AES.c: 248: _roundCounter = 10;
+"248
+[e = __roundCounter -> -> 10 `i `uc ]
+[; ;AES.c: 250: _rcon = 0x01;
+"250
+[e = __rcon -> -> 1 `i `uc ]
+[; ;AES.c: 253: for(i=0;i<16;i++)
+"253
+{
+[e = _i -> -> 0 `i `uc ]
+[e $ < -> _i `i -> 16 `i 11  ]
+[e $U 12  ]
+"254
+[e :U 11 ]
+[; ;AES.c: 254: {
+{
+[; ;AES.c: 255: block[i] ^= key[i];
+"255
+[e =^ *U + _block * -> _i `ux -> -> # *U _block `ui `ux *U + &U _key * -> _i `ux -> -> # *U &U _key `ui `ux ]
+"256
+}
+"253
+[e ++ _i -> -> 1 `i `uc ]
+[e $ < -> _i `i -> 16 `i 11  ]
+[e :U 12 ]
+"256
+}
+[; ;AES.c: 256: }
+[; ;AES.c: 258: do
+"258
+[e :U 16 ]
+[; ;AES.c: 259: {
+"259
+{
+[; ;AES.c: 261: for(i=0;i<16;i++)
+"261
+{
+[e = _i -> -> 0 `i `uc ]
+[e $ < -> _i `i -> 16 `i 17  ]
+[e $U 18  ]
+"262
+[e :U 17 ]
+[; ;AES.c: 262: {
+{
+[; ;AES.c: 263: block[i]=STable[block[i]];
+"263
+[e = *U + _block * -> _i `ux -> -> # *U _block `ui `ux *U + &U _STable * -> *U + _block * -> _i `ux -> -> # *U _block `ui `ux `ux -> -> # *U &U _STable `ui `ux ]
+"264
+}
+"261
+[e ++ _i -> -> 1 `i `uc ]
+[e $ < -> _i `i -> 16 `i 17  ]
+[e :U 18 ]
+"264
+}
+[; ;AES.c: 264: }
+[; ;AES.c: 267: EncodeShiftRow(block);
+"267
+[e ( _EncodeShiftRow (1 _block ]
+[; ;AES.c: 270: if(_roundCounter != 1)
+"270
+[e $ ! != -> __roundCounter `i -> 1 `i 20  ]
+[; ;AES.c: 271: {
+"271
+{
+"272
+[v _aux `uc ~T0 @X0 1 a ]
+[v _aux1 `uc ~T0 @X0 1 a ]
+[v _aux2 `uc ~T0 @X0 1 a ]
+[v _aux3 `uc ~T0 @X0 1 a ]
+[; ;AES.c: 272: unsigned char aux,aux1,aux2,aux3;
+[; ;AES.c: 274: for(i=0;i<16;i+=4)
+"274
+{
+[e = _i -> -> 0 `i `uc ]
+[e $ < -> _i `i -> 16 `i 21  ]
+[e $U 22  ]
+"275
+[e :U 21 ]
+[; ;AES.c: 275: {
+{
+[; ;AES.c: 276: aux1= block[i+0] ^ block[i+1];
+"276
+[e = _aux1 -> ^ -> *U + _block * -> + -> _i `i -> 0 `i `x -> -> # *U _block `i `x `i -> *U + _block * -> + -> _i `i -> 1 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 277: aux3= block[i+2]^block[i+3];
+"277
+[e = _aux3 -> ^ -> *U + _block * -> + -> _i `i -> 2 `i `x -> -> # *U _block `i `x `i -> *U + _block * -> + -> _i `i -> 3 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 278: aux = aux1 ^ aux3;
+"278
+[e = _aux -> ^ -> _aux1 `i -> _aux3 `i `uc ]
+[; ;AES.c: 279: aux2= block[i+2]^block[i+1];
+"279
+[e = _aux2 -> ^ -> *U + _block * -> + -> _i `i -> 2 `i `x -> -> # *U _block `i `x `i -> *U + _block * -> + -> _i `i -> 1 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 281: aux1 = (((aux1)<0x80)?(aux1)<<1:(((aux1)<<1)^0x1b) );
+"281
+[e = _aux1 -> ? < -> _aux1 `i -> 128 `i : << -> _aux1 `i -> 1 `i ^ << -> _aux1 `i -> 1 `i -> 27 `i `uc ]
+[; ;AES.c: 282: aux2 = (((aux2)<0x80)?(aux2)<<1:(((aux2)<<1)^0x1b) );
+"282
+[e = _aux2 -> ? < -> _aux2 `i -> 128 `i : << -> _aux2 `i -> 1 `i ^ << -> _aux2 `i -> 1 `i -> 27 `i `uc ]
+[; ;AES.c: 283: aux3 = (((aux3)<0x80)?(aux3)<<1:(((aux3)<<1)^0x1b) );
+"283
+[e = _aux3 -> ? < -> _aux3 `i -> 128 `i : << -> _aux3 `i -> 1 `i ^ << -> _aux3 `i -> 1 `i -> 27 `i `uc ]
+[; ;AES.c: 285: block[i+0]= aux^aux1^block[i+0];
+"285
+[e = *U + _block * -> + -> _i `i -> 0 `i `x -> -> # *U _block `i `x -> ^ ^ -> _aux `i -> _aux1 `i -> *U + _block * -> + -> _i `i -> 0 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 286: block[i+1]= aux^aux2^block[i+1];
+"286
+[e = *U + _block * -> + -> _i `i -> 1 `i `x -> -> # *U _block `i `x -> ^ ^ -> _aux `i -> _aux2 `i -> *U + _block * -> + -> _i `i -> 1 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 287: block[i+2]= aux^aux3^block[i+2];
+"287
+[e = *U + _block * -> + -> _i `i -> 2 `i `x -> -> # *U _block `i `x -> ^ ^ -> _aux `i -> _aux3 `i -> *U + _block * -> + -> _i `i -> 2 `i `x -> -> # *U _block `i `x `i `uc ]
+[; ;AES.c: 288: block[i+3]= block[i+0]^block[i+1]^block[i+2]^aux;
+"288
+[e = *U + _block * -> + -> _i `i -> 3 `i `x -> -> # *U _block `i `x -> ^ ^ ^ -> *U + _block * -> + -> _i `i -> 0 `i `x -> -> # *U _block `i `x `i -> *U + _block * -> + -> _i `i -> 1 `i `x -> -> # *U _block `i `x `i -> *U + _block * -> + -> _i `i -> 2 `i `x -> -> # *U _block `i `x `i -> _aux `i `uc ]
+"289
+}
+"274
+[e =+ _i -> -> 4 `i `uc ]
+[e $ < -> _i `i -> 16 `i 21  ]
+[e :U 22 ]
+"289
+}
+"290
+}
+[e :U 20 ]
+[; ;AES.c: 289: }
+[; ;AES.c: 290: }
+[; ;AES.c: 292: EncKeySchedule(key);
+"292
+[e ( _EncKeySchedule (1 &U _key ]
+[; ;AES.c: 294: for(i=0;i<16;i++)
+"294
+{
+[e = _i -> -> 0 `i `uc ]
+[e $ < -> _i `i -> 16 `i 24  ]
+[e $U 25  ]
+"295
+[e :U 24 ]
+[; ;AES.c: 295: {
+{
+[; ;AES.c: 296: block[i] ^= key[i];
+"296
+[e =^ *U + _block * -> _i `ux -> -> # *U _block `ui `ux *U + &U _key * -> _i `ux -> -> # *U &U _key `ui `ux ]
+"297
+}
+"294
+[e ++ _i -> -> 1 `i `uc ]
+[e $ < -> _i `i -> 16 `i 24  ]
+[e :U 25 ]
+"297
+}
+[; ;AES.c: 297: }
+[; ;AES.c: 299: _roundCounter--;
+"299
+[e -- __roundCounter -> -> 1 `i `uc ]
+"300
+}
+[; ;AES.c: 300: }
+[; ;AES.c: 301: while(_roundCounter !=0);
+"301
+[e $ != -> __roundCounter `i -> 0 `i 16  ]
+[e :U 15 ]
+[; ;AES.c: 302: }
+"302
+[e :UE 7 ]
+}

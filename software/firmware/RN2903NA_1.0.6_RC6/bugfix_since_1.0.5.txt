@@ -1,0 +1,44 @@
+1.0.6 RC1
+Fixed 'get mac status' to correctly display the 'channelsModified' bit-11.
+Fixed issue where LinkADR block could not be decoded if the LinkADRReq block
+    was followed by a non-LinkADRReq MAC command in the MAC command block.
+
+1.0.6 RC2
+Added code to support sleep times 131072000 ms (0x07D00000) through
+    4294967295 ms (0xFFFFFFFF).  Existing code did not support that range.
+
+    system_low_power.c: SysSleepStart()
+        - massive change to tick calculation to support 40-bit tick values
+
+    system_low_power.c: OnSleepTimerEvent()
+        - added support to use callback parameter to provide extra tick bits
+
+    sw_timer.c
+        - added support for modifying callback parameter
+            new: SwTimerSetCallbackParam()
+            new: SwTimerDecCallbackParam()
+
+    Includes DEBUG_SLEEP instrumentation using GPIO13 to indicate sleep state.
+
+1.0.6 RC3
+Restored minimal ticks calculation in SysSleepStart for short sleep durations
+
+1.0.6 RC5
+    Validate Autobaud
+        - restores previous UART baudrate if ABD operation was unsuccessful
+        - adds optional ABD timeout to restore UART communications after
+            failed or incomplete break-autobaud operation
+
+    Validate Autobaud - During Sytem Sleep
+        - returns to sleep after UART Rx line glitch (was waking forever)
+        - break condition must exist for ~78 uS (9-bit times @115200 baud)
+
+    Max UART baud rate is 115200
+
+    Debugged sleep timer issues injected in earlier v1.0.6 RCs
+
+    Added debug to GPIO13 as follows (this will be removed for release)
+        GPIO13 high:        RN2903 awake
+        GPIO13 low:         RN2903 asleep
+        GPIO13 2 pulses:    EUSART1_Receive_ISR started
+		

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <executable name="dist/offset/production\RN2483_Parser.production.hex">
+    <memory name="program">
+      <units>bytes</units>
+      <length>64768</length>
+      <used>57699</used>
+      <free>7069</free>
+    </memory>
+    <memory name="data">
+      <units>bytes</units>
+      <length>3896</length>
+      <used>3247</used>
+      <free>649</free>
+    </memory>
+  </executable>
+</project>

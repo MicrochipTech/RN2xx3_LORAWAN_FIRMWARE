@@ -10,7 +10,7 @@ Devices: | **RN2483A | RN2903A**
 <img src="resources/media/wlr089u0.png" width=480></a>
 </p>
 
-**For Latest and Greatest LoRaWAN Module, check out the [WLR089U0 module](https://www.microchip.com/wwwproducts/en/WLR089U0).**
+**For Latest and Greatest LoRaWAN solutions, check out the [WLR089U0 Module](https://www.microchip.com/wwwproducts/en/WLR089U0) and [SAM R34 IC](https://www.microchip.com/wwwproducts/en/ATSAMR34J18).**
 
 ## ⚠ Disclaimer
 
@@ -30,10 +30,11 @@ IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, INCIDE
 - NONE OF THE SOFTWARE PART OF THIS REPOSITORY ARE ACTIVELY SUPPORTED.
 - NO RN2xx3 MODULE WILL COME PRE-PROGRAMMED BY MICROCHIP WITH ANY OF THOSE VERSION.
 - THE MODULE MUST BE SELF-PROGRAMMED IF REQUIRED.
-- SOFTWARE HAVE NOT BEEN TESTED.
+- SOFTWARE HAVE NOT BEEN FULLY TESTED.
 - SOFTWARE HAVE NOT BEEN CERTIFIED.
 - SOFTWARE HAVE NOT BEEN VALIDATED WITH THE LORAWAN CERTIFICATION TEST TOOL.
-- SOFTWARE HAS BEEN IMPLEMENTED WITH [LORAWAN ALLIANCE SPECIFICATION v1.0.2](https://lora-alliance.org/resource-hub/lorawanr-specification-v102) and [LORAWAN REGIONAL PARAMETERS v1.0.2](https://lora-alliance.org/resource-hub/lorawanr-regional-parameters-v102rb).
+- EU & NA SOFTWARE HAVE BEEN IMPLEMENTED WITH [LORAWAN ALLIANCE SPECIFICATION v1.0.2](https://lora-alliance.org/resource-hub/lorawanr-specification-v102) and [LORAWAN REGIONAL PARAMETERS v1.0.2](https://lora-alliance.org/resource-hub/lorawanr-regional-parameters-v102rb).
+- FOR LATEST AND GREATEST LORAWAN SOLUTIONS, CHECK OUT THE [WLR089U0 MODULE](https://www.microchip.com/wwwproducts/en/WLR089U0) AND [SAM R34 IC](https://www.microchip.com/wwwproducts/en/ATSAMR34J18).
 </b>
 
 ## Resources

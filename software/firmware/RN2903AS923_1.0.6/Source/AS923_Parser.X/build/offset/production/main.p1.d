@@ -1,0 +1,39 @@
+ build/offset/production/main.d  \
+ build/offset/production/main.p1:  \
+ main.c  \
+mcc_generated_files/LoRaWAN/radio_interface.h  \
+mcc_generated_files/LoRaWAN/sw_timer.h  \
+parser/parser_system.h  \
+mcc_generated_files/fvr.h  \
+mcc_generated_files/LoRaWAN/../spi2.h  \
+system/system_low_power.h  \
+mcc_generated_files/LoRaWAN/../pin_manager.h  \
+mcc_generated_files/mcc.h  \
+parser/parser_tsp.h  \
+mcc_generated_files/eusart1.h  \
+parser/parser_private.h  \
+mcc_generated_files/adc.h  \
+mcc_generated_files/LoRaWAN/radio_interface.h  \
+mcc_generated_files/LoRaWAN/radio_driver_SX1276.h  \
+mcc_generated_files/LoRaWAN/radio_driver_hal.h  \
+mcc_generated_files/LoRaWAN/radio_driver_hal.h  \
+mcc_generated_files/memory.h  \
+mcc_generated_files/ext_int.h  \
+mcc_generated_files/LoRaWAN/lorawan_private.h  \
+system/system.h  \
+mcc_generated_files/LoRaWAN/tmr_lora_addons.h  \
+mcc_generated_files/LoRaWAN/lorawan.h  \
+mcc_generated_files/spi2.h  \
+mcc_generated_files/i2c1.h  \
+mcc_generated_files/LoRaWAN/lorawan.h  \
+mcc_generated_files/LoRaWAN/lorawan_defs.h  \
+mcc_generated_files/LoRaWAN/lorawan_init.h  \
+mcc_generated_files/interrupt_manager.h  \
+mcc_generated_files/tmr1.h  \
+parser/parser_utils.h  \
+mcc_generated_files/LoRaWAN/lorawan_private.h  \
+mcc_generated_files/pin_manager.h  \
+mcc_generated_files/LoRaWAN/pin_manager_lora_addons.h  \
+mcc_generated_files/LoRaWAN/interrupt_manager_lora_addons.h  \
+parser/parser.h  \
+mcc_generated_files/LoRaWAN/lorawan_defs.h 

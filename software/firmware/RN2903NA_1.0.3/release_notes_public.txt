@@ -1,0 +1,9 @@
+RN2903 FW revision history:
+
+0.9.5   Initial release
+
+0.9.7   Hardware rev H
+
+0.9.8   Autobaud (awake mode) Issue Fixed
+
+1.0.3  Fixed issues with LinkAdr, RxParamSetup, RX1 Receive Window, Channel Management, ESUART buffer sizes.

@@ -1,0 +1,43 @@
+RN2903 FW revision history:
+
+0.9.5   Initial release
+
+0.9.7   Hardware rev H
+
+0.9.8   Autobaud (awake mode) Issue Fixed
+
+1.0.3   Fixed issues with LinkAdr, RxParamSetup, RX1 Receive Window, Channel Management, ESUART buffer sizes.
+
+1.0.5   Release for LoRaWAN specification 1.0.2
+        RN2903 1.0.5 Nov 06 2018 10:45:27
+
+Changes since last release
+- Added support for Class C and Multicast
+- Added support for additional RN2903 commands
+    mac set class
+    mac set mcast
+    mac set mcastdnctr
+    mac set mcastdevaddr
+    mac set mcastnwkskey
+    mac set mcastappskey
+
+    mac get class
+    mac get mcast
+    mac get mcastdnctr
+    mac get mcastdevaddr
+
+    radio get rssi
+    radio rxstop
+
+- Added new parameters to be saved in nonvolatile memory whenever a mac save
+    command is triggered
+        LoRaWAN device class
+        LoRaWAN multicast application session key
+        LoRaWAN multicast network session key
+        LoRaWAN multicast device address
+
+- Changed the pwridx range to support values from 4 to 10
+- Changed the pwridx default value to 5
+- Added support for Link ADR channel blocks
+
+

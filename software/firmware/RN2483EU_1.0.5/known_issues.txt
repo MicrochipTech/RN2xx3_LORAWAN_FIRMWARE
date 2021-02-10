@@ -1,0 +1,5 @@
+- The device hangs when receiving LinkAdr command followed by different command frames
+
+- 
+
+

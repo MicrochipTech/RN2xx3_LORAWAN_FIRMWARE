@@ -1,0 +1,44 @@
+RN2483 FW revision history:
+
+0.9.5	Initial release
+1.0.0	Release for LoRaWAN specification V1.0 
+Changes since last release
+- Added support for additional RN2483 commands:
+    mac set sync
+	mac get sync
+	mac set upctr
+	mac get upctr
+	mac set dnctr
+	mac get dnctr
+	sys set pinmode
+	sys get pindig 
+	sys get pinana
+	radio get sync	
+- Added new parameters to be saved in non volatile memory whenever a mac save command is triggered
+	LoRaWAN current data rate 
+	LoRaWAN RX2 window parameters (data rate and frequency) 
+	Adaptive Data Rate status 
+	LoRaWAN uplink frame counter 
+	LoRaWAN downlink frame counter
+- Changed the default value of the End-Device Identifier (deveui)	
+- Changed the valid range for the radio set fdev parameter to [0.. 200000]
+- Changed the valid range for the radio set bitrate parameter to [1.. 300000]
+- Changed sys sleep command behavior to not influence the GPIO configuration
+- Changed the 433 MHz radio frequency band to [433050000 .. 434790000]
+- Fixed an issue that may have caused the RN2483 module to mishandle data on LoRaWAN port 0
+- Fixed an issue that may have cause the module to fail joining
+- Fixed "radio get snr" command to display correct value 
+1.0.1	Release containing modifications needed to successfully pass the LoRaWAN Certification Program testing in 868 MHz band
+Changes since last release
+- Added support for usage of the reserved ports, from 224 to 255 for transmitting and receiving Application Data
+- Increased the size of the value returned by the "mac get status" command from 2 bytes to 4 bytes
+- Updated the size of the LoRaWAN receive windows and the moment in time at which these are opened
+- Fixed an issue that may have caused the RN2483 module to mishandle packets received with DR = 7
+- Fixed an issue that may have caused the RN2483 module to mishandle the LoRaWAN RXParamSetupReq command
+- Fixed an issue that may have caused the RN2483 module to mishandle the usage of LoraWAN ADRACKReq in packets
+1.0.2	Release (LoRaWAN specification V1.0)
+- Fixed an issue that impacted the current consumed in sleep mode
+1.0.3	Release (LoRaWAN specification V1.0.1)
+- Fixed the wake up from sleep on UART feature
+- Added support for RxTimingSetupAns and RxParamSetupAns responses in uplink frames until the next downlink is received.
+- Added support to Ignore downlink frames to port 0 with Mac commands in FOpts and Payload

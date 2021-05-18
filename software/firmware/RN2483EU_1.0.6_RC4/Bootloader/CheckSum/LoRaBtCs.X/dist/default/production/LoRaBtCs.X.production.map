@@ -1,0 +1,133 @@
+MPLINK 5.09, LINKER
+Linker Map File - Created Tue May 18 18:38:00 2021
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000002
+                   .cinit    romdata   0x000002    program   0x000002
+                   .org_1       code   0x000008    program   0x000002
+                   .org_2       code   0x000018    program   0x000258
+                   .org_3       code   0x000300    program   0x000000
+                   .org_4       code   0x000308    program   0x000000
+                   .org_5       code   0x000318    program   0x000000
+.config_300001_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300001    program   0x000001
+.config_300002_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300002    program   0x000001
+.config_300003_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300003    program   0x000001
+.config_300005_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300005    program   0x000001
+.config_300006_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300006    program   0x000001
+.config_300008_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300008    program   0x000001
+.config_300009_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x300009    program   0x000001
+.config_30000A_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x30000a    program   0x000001
+.config_30000B_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x30000b    program   0x000001
+.config_30000C_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x30000c    program   0x000001
+.config_30000D_BUILD/DEFAULT/PRODUCTION/_EXT/14    romdata   0x30000d    program   0x000001
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x000009      
+                            0x000018    0x00026f      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+            617 out of 66584 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                AddLength   0x000092    program     static ..\pic18f_bootload.asm   
+                 AutoBaud   0x000052    program     static ..\pic18f_bootload.asm   
+         AutoBaudComplete   0x000068    program     static ..\pic18f_bootload.asm   
+             CalcCheckSum   0x00022a    program     static ..\pic18f_bootload.asm   
+             CheckCommand   0x0000fe    program     static ..\pic18f_bootload.asm   
+             CheckSumFail   0x000050    program     static ..\pic18f_bootload.asm   
+             CheckSumLoop   0x000236    program     static ..\pic18f_bootload.asm   
+             CommandError   0x000104    program     static ..\pic18f_bootload.asm   
+             CommandValid   0x00010a    program     static ..\pic18f_bootload.asm   
+           EndGetNextLoop   0x000096    program     static ..\pic18f_bootload.asm   
+             EraseProgMem   0x0001d6    program     static ..\pic18f_bootload.asm   
+               GetNextDat   0x000074    program     static ..\pic18f_bootload.asm   
+                InitComms   0x0000ca    program     static ..\pic18f_bootload.asm   
+     JumpTableBaseAddress   0x00011a    program     static ..\pic18f_bootload.asm   
+                      Lp1   0x0001b6    program     static ..\pic18f_bootload.asm   
+        PreSetupRegisters   0x0000e8    program     static ..\pic18f_bootload.asm   
+        ProcessBootBuffer   0x0000e8    program     static ..\pic18f_bootload.asm   
+                   RVIntH   0x000308    program     static ..\pic18f_bootload.asm   
+                   RVIntL   0x000318    program     static ..\pic18f_bootload.asm   
+                  RVReset   0x000300    program     static ..\pic18f_bootload.asm   
+                  RdRS232   0x0000ba    program     static ..\pic18f_bootload.asm   
+                   ReadEE   0x0001ec    program     static ..\pic18f_bootload.asm   
+              ReadProgMem   0x0001a6    program     static ..\pic18f_bootload.asm   
+              ReadVersion   0x00012e    program     static ..\pic18f_bootload.asm   
+                 ReadWait   0x0000c0    program     static ..\pic18f_bootload.asm   
+          SendAcknowledge   0x000258    program     static ..\pic18f_bootload.asm   
+                 SendNext   0x0000a6    program     static ..\pic18f_bootload.asm   
+                    Setup   0x00001a    program     static ..\pic18f_bootload.asm   
+                 StartApp   0x0000e4    program     static ..\pic18f_bootload.asm   
+          StartFlashWrite   0x0001c6    program     static ..\pic18f_bootload.asm   
+              StartOfLine   0x00006c    program     static ..\pic18f_bootload.asm   
+               StartWrite   0x000260    program     static ..\pic18f_bootload.asm   
+                    VIntH   0x000008    program     static ..\pic18f_bootload.asm   
+                    VIntL   0x000018    program     static ..\pic18f_bootload.asm   
+          WaitForAutoBaud   0x00005a    program     static ..\pic18f_bootload.asm   
+                  WrRS232   0x0000b0    program     static ..\pic18f_bootload.asm   
+              WriteConfig   0x000216    program     static ..\pic18f_bootload.asm   
+                  WriteEE   0x000200    program     static ..\pic18f_bootload.asm   
+              WritePacket   0x00009c    program     static ..\pic18f_bootload.asm   
+             WriteProgMem   0x0001b6    program     static ..\pic18f_bootload.asm   
+             _.org_2_020C   0x00020c    program     static ..\pic18f_bootload.asm   
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    VIntH   0x000008    program     static ..\pic18f_bootload.asm   
+                    VIntL   0x000018    program     static ..\pic18f_bootload.asm   
+                    Setup   0x00001a    program     static ..\pic18f_bootload.asm   
+             CheckSumFail   0x000050    program     static ..\pic18f_bootload.asm   
+                 AutoBaud   0x000052    program     static ..\pic18f_bootload.asm   
+          WaitForAutoBaud   0x00005a    program     static ..\pic18f_bootload.asm   
+         AutoBaudComplete   0x000068    program     static ..\pic18f_bootload.asm   
+              StartOfLine   0x00006c    program     static ..\pic18f_bootload.asm   
+               GetNextDat   0x000074    program     static ..\pic18f_bootload.asm   
+                AddLength   0x000092    program     static ..\pic18f_bootload.asm   
+           EndGetNextLoop   0x000096    program     static ..\pic18f_bootload.asm   
+              WritePacket   0x00009c    program     static ..\pic18f_bootload.asm   
+                 SendNext   0x0000a6    program     static ..\pic18f_bootload.asm   
+                  WrRS232   0x0000b0    program     static ..\pic18f_bootload.asm   
+                  RdRS232   0x0000ba    program     static ..\pic18f_bootload.asm   
+                 ReadWait   0x0000c0    program     static ..\pic18f_bootload.asm   
+                InitComms   0x0000ca    program     static ..\pic18f_bootload.asm   
+                 StartApp   0x0000e4    program     static ..\pic18f_bootload.asm   
+        ProcessBootBuffer   0x0000e8    program     static ..\pic18f_bootload.asm   
+        PreSetupRegisters   0x0000e8    program     static ..\pic18f_bootload.asm   
+             CheckCommand   0x0000fe    program     static ..\pic18f_bootload.asm   
+             CommandError   0x000104    program     static ..\pic18f_bootload.asm   
+             CommandValid   0x00010a    program     static ..\pic18f_bootload.asm   
+     JumpTableBaseAddress   0x00011a    program     static ..\pic18f_bootload.asm   
+              ReadVersion   0x00012e    program     static ..\pic18f_bootload.asm   
+              ReadProgMem   0x0001a6    program     static ..\pic18f_bootload.asm   
+             WriteProgMem   0x0001b6    program     static ..\pic18f_bootload.asm   
+                      Lp1   0x0001b6    program     static ..\pic18f_bootload.asm   
+          StartFlashWrite   0x0001c6    program     static ..\pic18f_bootload.asm   
+             EraseProgMem   0x0001d6    program     static ..\pic18f_bootload.asm   
+                   ReadEE   0x0001ec    program     static ..\pic18f_bootload.asm   
+                  WriteEE   0x000200    program     static ..\pic18f_bootload.asm   
+             _.org_2_020C   0x00020c    program     static ..\pic18f_bootload.asm   
+              WriteConfig   0x000216    program     static ..\pic18f_bootload.asm   
+             CalcCheckSum   0x00022a    program     static ..\pic18f_bootload.asm   
+             CheckSumLoop   0x000236    program     static ..\pic18f_bootload.asm   
+          SendAcknowledge   0x000258    program     static ..\pic18f_bootload.asm   
+               StartWrite   0x000260    program     static ..\pic18f_bootload.asm   
+                  RVReset   0x000300    program     static ..\pic18f_bootload.asm   
+                   RVIntH   0x000308    program     static ..\pic18f_bootload.asm   
+                   RVIntL   0x000318    program     static ..\pic18f_bootload.asm   
+
+

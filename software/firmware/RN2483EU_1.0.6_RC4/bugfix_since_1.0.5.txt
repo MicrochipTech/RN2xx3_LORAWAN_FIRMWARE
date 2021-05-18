@@ -1,0 +1,16 @@
+1.0.6 RC1
+Bugfix: This version supports BlockLinkAdr followed by different command frames.
+
+1.0.6 RC2
+Bugfix: In the class C mode, when the device receives other join responses in the network, the device is not resetting back to class C receive mode
+        The fix ensures that after processing the mic failure, if its Class C it enters Continuous Receive.
+
+1.0.6 RC3
+Bugfix: Sleep timer has a bug in the previous. Multiple of days of sleep failed, max 1.5 days is possible with old version of the firmware. The bug in the code is related to overextending the 32 bit operator.
+The new firmware allows 45 days sleep cycle as mentioned in the command reference manual. In addition to this during the sleep mode instead of waking for every 2 seconds to reprogram timer and go back to sleep, the period was increased to 16sec.
+
+1.0.6 RC4
+Bugfix: The command radio get rssi is always returning value -128 in FSK mode.
+		The fix ensures the RSSI value in FSK mode is getting successfully updated.
+	
+

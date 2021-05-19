@@ -8969,13 +8969,13 @@ void Parser_GetSwVersion(uint8_t* pBuffData)
 memcpy(pBuffData, "RN2483", sizeof("RN2483"));
 pBuffData[sizeof("RN2483") - 1] = ' ';
 
-memcpy(&pBuffData[sizeof("RN2483")], "1.0.6 RC3", sizeof("1.0.6 RC3"));
-pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC3") - 1] = ' ';
+memcpy(&pBuffData[sizeof("RN2483")], "1.0.6 RC4", sizeof("1.0.6 RC4"));
+pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC4") - 1] = ' ';
 
-memcpy(&pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC3")], "May 18 2021", sizeof("May 18 2021"));
-pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC3") + sizeof("May 18 2021") - 1] = ' ';
-memcpy(&pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC3") + sizeof("May 18 2021")], "17:49:35", sizeof("17:49:35"));
-pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC3") + sizeof("May 18 2021") + sizeof("17:49:35")] = '\0';
+memcpy(&pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC4")], "May 19 2021", sizeof("May 19 2021"));
+pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC4") + sizeof("May 19 2021") - 1] = ' ';
+memcpy(&pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC4") + sizeof("May 19 2021")], "10:04:09", sizeof("10:04:09"));
+pBuffData[sizeof("RN2483") + sizeof("1.0.6 RC4") + sizeof("May 19 2021") + sizeof("10:04:09")] = '\0';
 }
 
 static uint8_t Parser_ProcessCmd(const parserCmdEntry_t* pParserCmd, uint8_t nbParserCmd, uint8_t rxCmdIdx,

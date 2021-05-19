@@ -26,7 +26,7 @@
   300000h - 30000Dh
   
 ### Checksum Reports ###
- Checksum 0 : (300h to FFFDh) = FE8D
+ Checksum 0 : (300h to FFFDh) = F083
 
 ### Hex Memory Map ###
  Legend:

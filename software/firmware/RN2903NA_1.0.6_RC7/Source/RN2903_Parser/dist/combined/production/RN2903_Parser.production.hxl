@@ -25,7 +25,7 @@
   300000h - 30000Dh
   
 ### Checksum Reports ###
- Checksum 0 : (300h to FFFDh) = CA3
+ Checksum 0 : (300h to FFFDh) = A94
 
 ### Hex Memory Map ###
  Legend:

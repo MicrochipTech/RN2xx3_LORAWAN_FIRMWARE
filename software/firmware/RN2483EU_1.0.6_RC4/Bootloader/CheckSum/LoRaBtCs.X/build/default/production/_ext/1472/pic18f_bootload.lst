@@ -1,4 +1,4 @@
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  1
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00050 ; Definitions:
                       00051 ;
                       00052 ;   COMMAND    -   Base command
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  2
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00010 ;*
                       00011 ;* CODE ACCOMPANYING THIS MESSAGE IS SUPPLIED BY MICROCHIP "AS IS".  NO
                       00012 ;* WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  3
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00063 #define  UART_RX       PORTC,7
                       00064 #define  LAT_UART_TX   LATC,6
                       00065 #define  TRIS_UART_RX  TRISC,TRISC7
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  4
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                             eset)
                       00111     config LVP = ON         ;// Single-Supply ICSP Enable bit (Single-Supply ICSP enabled if MCLRE is al
                             so 1)
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  5
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -293,7 +293,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00153 ;#define  RCSTA  RCSTA1
                       00154 ;#define  TXSTA  TXSTA1
                       00155 ;#define  RCREG  RCREG1
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  6
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -352,7 +352,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00205 
   00000080            00206 FSR_LOG equ 0x80
                       00207 #define  LOG_W   movwf   POSTINC1
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  7
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -411,7 +411,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 00002C 0EFC           00258     movlw   high (0x10000 - 0x300 - 2)
 00002E 6E0B           00259     movwf   DATA_COUNT_H
 000030 0EFE           00260     movlw   low  (0x10000 - 0x300 - 2)
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  8
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -470,7 +470,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00311 ;
                       00312 ;    rcall   WaitForRise
                       00313 ;
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE  9
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE  9
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -529,7 +529,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 00007E E1??           00364     bnz     EndGetNextLoop
                       00365 
 000080 5009           00366     movf    COMMAND,w
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 10
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 10
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -588,7 +588,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00417 ; *****************************************************************************
                       00418 ; Write a byte to the serial port.
                       00419 
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 11
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 11
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -647,7 +647,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00464 ; *****************************************************************************
                       00465 ;       ORG     0x000A
                       00466 
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 12
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 12
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -706,7 +706,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00517 ;    clrf    PCLATH                     ; Setup for a calculated jump
 00010A 6AFB           00518     clrf    PCLATU
                       00519 
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 13
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 13
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -765,7 +765,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 000150 0009           00570     tblrd   *+                  ; Fill buffer
 000152 CFF5 F019      00571     movff   TABLAT, PACKET_DATA + .7
 000156 6A1A           00572     clrf    PACKET_DATA + .8   ; Pad to 4 bytes
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 14
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 14
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -824,7 +824,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0001A8 CFF5 FFEE      00623     movff   TABLAT, POSTINC0
                       00624 
 0001AC 2E02           00625     decfsz  COUNTER, F
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 15
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 15
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -883,7 +883,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00670 ; EraseProgMem
                       00671 ;
                       00672 ; In:   [<0x03><EraseRowsL><EraseRowsH> <0x55><0xAA> <ADDRL><ADDRH><ADDRU><unused>...]
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 16
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 16
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -942,7 +942,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00723 
 000204 0E04           00724         movlw   b'00000100'             ; Setup for EEData
 000206 6EA6           00725         movwf   EECON1
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 17
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 17
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1001,7 +1001,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 000222 0009           00774         tblrd   *+
                       00775 
 000224 2E02           00776         decfsz  COUNTER, F
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 18
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 18
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1060,7 +1060,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00826 
                       00827 
                       00828 
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 19
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 19
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1102,7 +1102,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00862 
                       00863 
                       00864         END
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 20
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 20
 
 
 SYMBOL TABLE
@@ -1161,7 +1161,7 @@ AN2                               00000002
 AN20                              00000000
 AN21                              00000001
 AN22                              00000002
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 21
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 21
 
 
 SYMBOL TABLE
@@ -1220,7 +1220,7 @@ AutoBaud                          00000052
 AutoBaudComplete                  00000068
 BANKED                            00000001
 BAUD1CON                          00000FB8
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 22
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 22
 
 
 SYMBOL TABLE
@@ -1279,7 +1279,7 @@ C1SP                              00000003
 C1SYNC                            00000001
 C1TSEL0                           00000000
 C1TSEL1                           00000001
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 23
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 23
 
 
 SYMBOL TABLE
@@ -1338,7 +1338,7 @@ CCP2M1                            00000001
 CCP2M2                            00000002
 CCP2M3                            00000003
 CCP2MD                            00000001
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 24
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 24
 
 
 SYMBOL TABLE
@@ -1397,7 +1397,7 @@ CCPR4L                            00000F58
 CCPR5                             00000F55
 CCPR5H                            00000F56
 CCPR5L                            00000F55
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 25
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 25
 
 
 SYMBOL TABLE
@@ -1456,7 +1456,7 @@ CheckCommand                      000000FE
 CheckSumFail                      00000050
 CheckSumLoop                      00000236
 CheckSum_H                        00000001
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 26
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 26
 
 
 SYMBOL TABLE
@@ -1515,7 +1515,7 @@ ECCPAS0                           00000004
 ECCPAS1                           00000005
 ECCPAS2                           00000006
 ECCPASE                           00000007
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 27
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 27
 
 
 SYMBOL TABLE
@@ -1574,7 +1574,7 @@ FSR2L                             00000FD9
 FSR_LOG                           00000080
 FVRCON                            00000F42
 FVREN                             00000007
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 28
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 28
 
 
 SYMBOL TABLE
@@ -1633,7 +1633,7 @@ INTCON                            00000FF2
 INTCON2                           00000FF1
 INTCON3                           00000FF0
 INTEDG0                           00000006
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 29
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 29
 
 
 SYMBOL TABLE
@@ -1692,7 +1692,7 @@ LATB4                             00000004
 LATB5                             00000005
 LATB6                             00000006
 LATB7                             00000007
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 30
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 30
 
 
 SYMBOL TABLE
@@ -1751,7 +1751,7 @@ MSK2                              00000002
 MSK3                              00000003
 MSK4                              00000004
 MSK5                              00000005
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 31
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 31
 
 
 SYMBOL TABLE
@@ -1810,7 +1810,7 @@ P1DC4                             00000004
 P1DC5                             00000005
 P1DC6                             00000006
 P1M0                              00000006
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 32
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 32
 
 
 SYMBOL TABLE
@@ -1869,7 +1869,7 @@ PD                                00000002
 PDC0                              00000000
 PDC1                              00000001
 PDC2                              00000002
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 33
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 33
 
 
 SYMBOL TABLE
@@ -1928,7 +1928,7 @@ PRSEN                             00000007
 PSA                               00000003
 PSS1AC0                           00000002
 PSS1AC1                           00000003
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 34
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 34
 
 
 SYMBOL TABLE
@@ -1987,7 +1987,7 @@ RC1IE                             00000005
 RC1IF                             00000005
 RC1IP                             00000005
 RC1REG                            00000FAE
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 35
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 35
 
 
 SYMBOL TABLE
@@ -2046,7 +2046,7 @@ RX2                               00000007
 RX9                               00000006
 RX91                              00000006
 RX92                              00000006
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 36
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 36
 
 
 SYMBOL TABLE
@@ -2105,7 +2105,7 @@ SP1BRG                            00000FAF
 SP1BRGH                           00000FB0
 SP2                               00000002
 SP2BRG                            00000F75
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 37
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 37
 
 
 SYMBOL TABLE
@@ -2164,7 +2164,7 @@ SSP2ADD                           00000F6E
 SSP2BUF                           00000F6F
 SSP2CON1                          00000F6C
 SSP2CON2                          00000F6B
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 38
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 38
 
 
 SYMBOL TABLE
@@ -2223,7 +2223,7 @@ SWDTEN                            00000000
 SYNC                              00000004
 SYNC1                             00000004
 SYNC2                             00000004
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 39
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 39
 
 
 SYMBOL TABLE
@@ -2282,7 +2282,7 @@ T3CON                             00000FB1
 T3G                               00000000
 T3GCON                            00000FB4
 T3GGO                             00000003
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 40
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 40
 
 
 SYMBOL TABLE
@@ -2341,7 +2341,7 @@ TMR0                              00000FD6
 TMR0H                             00000FD7
 TMR0IE                            00000005
 TMR0IF                            00000002
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 41
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 41
 
 
 SYMBOL TABLE
@@ -2400,7 +2400,7 @@ TMR5GIP                           00000002
 TMR5H                             00000F50
 TMR5IE                            00000001
 TMR5IF                            00000001
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 42
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 42
 
 
 SYMBOL TABLE
@@ -2459,7 +2459,7 @@ TRISD5                            00000005
 TRISD6                            00000006
 TRISD7                            00000007
 TRISE                             00000F96
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 43
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 43
 
 
 SYMBOL TABLE
@@ -2518,7 +2518,7 @@ UART2MD                           00000007
 UART_RCIF                         PIR1,RC1IF
 UART_RX                           PORTC,7
 UART_TXIF                         PIR1,TX1IF
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 44
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 44
 
 
 SYMBOL TABLE
@@ -2577,7 +2577,7 @@ _CCP2MX_PORTC1_3H                 000000FF
 _CCP3MX_PORTB5_3H                 000000FF
 _CCP3MX_PORTE0_3H                 000000FB
 _CONFIG1H                         00300001
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 45
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 45
 
 
 SYMBOL TABLE
@@ -2636,7 +2636,7 @@ _FOSC_RCIO6_1H                    000000F7
 _FOSC_RC_1H                       000000F6
 _FOSC_XT_1H                       000000F1
 _HFOFST_OFF_3H                    000000F7
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 46
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 46
 
 
 SYMBOL TABLE
@@ -2695,7 +2695,7 @@ _WRT0_OFF_6L                      000000FF
 _WRT0_ON_6L                       000000FE
 _WRT1_OFF_6L                      000000FF
 _WRT1_ON_6L                       000000FD
-MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-18-2021  18:37:59         PAGE 47
+MPASM 5.83               PIC18F_BOOTLOAD.ASM   5-19-2021  10:07:40         PAGE 47
 
 
 SYMBOL TABLE

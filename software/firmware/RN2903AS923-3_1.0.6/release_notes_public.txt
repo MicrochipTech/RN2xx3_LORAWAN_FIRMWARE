@@ -1,0 +1,12 @@
+RN2903 AS923 FW revision history:
+
+
+Initial Firmware is pre-certified RN2483 Firmware Version 1.0.2 (LoRA WAN 1.0.1 Specification) with channel modifications and "mac reset <ism>" options.
+
+1.0.5 Release (LoRAWAN specification v1.0.2)
+- Added support for v1.0.2 - Tx Param Setup Req, DL Channel etc
+1.0.6 Release (LORAWAN specification v1.0.2)
+- Default dwell time enabled (use "mac set updwell on/off" "mac set dndwell on/off" to modify the dwell time settings)
+- Added support for Block Link Adr
+- Modified the duty cycle algorithm (supports 1% dutycycle by default)
+- Supports Class A and C (use "mac set class a" or "mac set class c" accordingly)

@@ -78,6 +78,7 @@ The present repository contains the following BETA Firmware for the [PIC18LF46K2
 
 - RN2483 EU v1.06 RC4 source code (LoRaWAN specification 1.0.2)
 - RN2483 EU v1.06 RC3 source code (LoRaWAN specification 1.0.2)
+- RN2903 NA v1.06 RC8 source code (LoRaWAN specification 1.0.2)
 - RN2903 NA v1.06 RC7 source code (LoRaWAN specification 1.0.2)
 - RN2903 NA v1.06 RC6 source code (LoRaWAN specification 1.0.2)
 - RN2903 AS923 v1.06 source code (LoRaWAN specification 1.0.2)

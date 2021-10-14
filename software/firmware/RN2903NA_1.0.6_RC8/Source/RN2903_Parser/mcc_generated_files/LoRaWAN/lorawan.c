@@ -2157,7 +2157,7 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
         }
      }
    
-   if ( (loRa.crtMacCmdIndex != 0) || (bufferLength != 0) )
+   if ( (loRa.crtMacCmdIndex != loRa.crtMacCmdNewIndex) || (bufferLength != 0) )
    {
         macBuffer[bufferIndex++] = port;     // the port field is present if the frame payload field is not empty
    }

@@ -1657,7 +1657,7 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
             }
             else
             {                
-                if(((65535 - loRa.fCntDown.members.valueLow) + hdr->members.fCnt) < loRa.protocolParameters.maxFcntGap)
+                if(((UINT16_MAX - loRa.fCntDown.members.valueLow) + hdr->members.fCnt) < loRa.protocolParameters.maxFcntGap)
                 {
                     //Frame counter rolled over
                     loRa.fCntDown.members.valueLow = hdr->members.fCnt;

@@ -1657,7 +1657,7 @@ LorawanError_t LORAWAN_RxDone (uint8_t *buffer, uint8_t bufferLength)
             }
             else
             {                
-                if(((65535 - loRa.fCntDown.members.valueLow) + hdr->members.fCnt) < loRa.protocolParameters.maxFcntGap)
+                if(((UINT16_MAX - loRa.fCntDown.members.valueLow) + hdr->members.fCnt) < loRa.protocolParameters.maxFcntGap)
                 {
                     //Frame counter rolled over
                     loRa.fCntDown.members.valueLow = hdr->members.fCnt;
@@ -2157,7 +2157,7 @@ static void AssemblePacket (bool confirmed, uint8_t port, uint8_t *buffer, uint1
         }
      }
    
-   if ( (loRa.crtMacCmdIndex != 0) || (bufferLength != 0) )
+   if ( (loRa.crtMacCmdIndex != loRa.crtMacCmdNewIndex) || (bufferLength != 0) )
    {
         macBuffer[bufferIndex++] = port;     // the port field is present if the frame payload field is not empty
    }
